@@ -1,0 +1,35 @@
+{
+  "id": "CONF-007",
+  "title": "Expired authorisation",
+  "level": "AEGS-1",
+  "control": "intent",
+  "rationale": "An expired authorisation is not a weaker one. An implementation that treats expiry as advisory has no notion of time-bounded authority.",
+  "setup": {
+    "intent": {
+      "purpose": "buy market data",
+      "maximumAmount": "1.00",
+      "allowedResources": [
+        "/market/*"
+      ],
+      "asset": "USDC",
+      "expiredHoursAgo": 1
+    }
+  },
+  "action": {
+    "channel": "external",
+    "resource": "/market/snapshot",
+    "amount": "0.001",
+    "asset": "USDC",
+    "counterparty": {
+      "id": "x402-poc-desk",
+      "name": "POC Desk"
+    }
+  },
+  "expect": {
+    "decision": "REJECT",
+    "decidingEngineIn": [
+      "intent",
+      "identity"
+    ]
+  }
+}

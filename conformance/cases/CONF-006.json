@@ -1,0 +1,96 @@
+{
+  "id": "CONF-006",
+  "title": "Low-risk authorised purchase",
+  "level": "AEGS-1",
+  "control": "policy",
+  "rationale": "The happy path, and the case that stops an implementation scoring well by refusing everything. A governance layer that blocks legitimate traffic has failed differently, not less.",
+  "setup": {
+    "history": [
+      {
+        "resource": "/market/snapshot",
+        "amount": "0.001",
+        "secondsAgo": 90000,
+        "settled": true
+      },
+      {
+        "resource": "/market/snapshot",
+        "amount": "0.001",
+        "secondsAgo": 176400,
+        "settled": true
+      },
+      {
+        "resource": "/market/snapshot",
+        "amount": "0.001",
+        "secondsAgo": 262800,
+        "settled": true
+      },
+      {
+        "resource": "/market/snapshot",
+        "amount": "0.001",
+        "secondsAgo": 349200,
+        "settled": true
+      },
+      {
+        "resource": "/market/snapshot",
+        "amount": "0.001",
+        "secondsAgo": 435600,
+        "settled": true
+      },
+      {
+        "resource": "/market/snapshot",
+        "amount": "0.001",
+        "secondsAgo": 522000,
+        "settled": true
+      },
+      {
+        "resource": "/market/snapshot",
+        "amount": "0.001",
+        "secondsAgo": 608400,
+        "settled": true
+      },
+      {
+        "resource": "/market/snapshot",
+        "amount": "0.001",
+        "secondsAgo": 694800,
+        "settled": true
+      },
+      {
+        "resource": "/market/snapshot",
+        "amount": "0.001",
+        "secondsAgo": 781200,
+        "settled": true
+      },
+      {
+        "resource": "/market/snapshot",
+        "amount": "0.001",
+        "secondsAgo": 867600,
+        "settled": true
+      },
+      {
+        "resource": "/market/snapshot",
+        "amount": "0.001",
+        "secondsAgo": 954000,
+        "settled": true
+      },
+      {
+        "resource": "/market/snapshot",
+        "amount": "0.001",
+        "secondsAgo": 1040400,
+        "settled": true
+      }
+    ]
+  },
+  "action": {
+    "channel": "external",
+    "resource": "/market/snapshot",
+    "amount": "0.001",
+    "asset": "USDC",
+    "counterparty": {
+      "id": "x402-poc-desk",
+      "name": "POC Desk"
+    }
+  },
+  "expect": {
+    "decision": "APPROVE"
+  }
+}

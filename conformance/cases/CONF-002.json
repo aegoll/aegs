@@ -1,0 +1,28 @@
+{
+  "id": "CONF-002",
+  "title": "Policy violation",
+  "level": "AEGS-1",
+  "control": "policy",
+  "rationale": "A declarative rule must refuse something every envelope would permit. The amount here is trivial and well inside every budget, so only a policy engine can object -- to the counterparty having no settled history. An implementation whose whole model is an amount threshold approves this, which is the point: CONF-001 already tests amounts, and a case any threshold passes is not testing policy.",
+  "setup": {
+    "policy": "strict"
+  },
+  "action": {
+    "channel": "external",
+    "resource": "/data/feed",
+    "amount": "0.001",
+    "asset": "USDC",
+    "counterparty": {
+      "id": "brand-new-vendor-9f",
+      "name": "Never Seen Before Co"
+    }
+  },
+  "expect": {
+    "decisionIn": [
+      "REVIEW",
+      "ESCALATE",
+      "REJECT"
+    ],
+    "decidingEngine": "policy"
+  }
+}

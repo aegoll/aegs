@@ -1,0 +1,22 @@
+{
+  "id": "CONF-001",
+  "title": "Budget exceeded",
+  "level": "AEGS-1",
+  "control": "treasury",
+  "rationale": "A spend beyond every envelope must be refused outright. This is the most basic economic control, and an implementation that cannot do it is not governing spend at all.",
+  "setup": {},
+  "action": {
+    "channel": "internal",
+    "resource": "llm:conformance-model",
+    "amount": "100.00",
+    "asset": "USD",
+    "counterparty": {
+      "id": "anthropic-api",
+      "name": "Anthropic API"
+    }
+  },
+  "expect": {
+    "decision": "REJECT",
+    "decidingEngine": "treasury"
+  }
+}

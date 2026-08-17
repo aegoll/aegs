@@ -1,0 +1,117 @@
+{
+  "id": "CONF-005",
+  "title": "High-risk transaction pattern",
+  "level": "AEGS-2",
+  "control": "risk",
+  "rationale": "A burst of transactions in a short window is a pattern no single-transaction check can see. The amounts here are individually trivial, so only a behavioural control can catch it.",
+  "setup": {
+    "history": [
+      {
+        "resource": "/market/snapshot",
+        "amount": "0.001",
+        "secondsAgo": 5,
+        "settled": true
+      },
+      {
+        "resource": "/market/snapshot",
+        "amount": "0.001",
+        "secondsAgo": 5,
+        "settled": true
+      },
+      {
+        "resource": "/market/snapshot",
+        "amount": "0.001",
+        "secondsAgo": 5,
+        "settled": true
+      },
+      {
+        "resource": "/market/snapshot",
+        "amount": "0.001",
+        "secondsAgo": 5,
+        "settled": true
+      },
+      {
+        "resource": "/market/snapshot",
+        "amount": "0.001",
+        "secondsAgo": 5,
+        "settled": true
+      },
+      {
+        "resource": "/market/snapshot",
+        "amount": "0.001",
+        "secondsAgo": 5,
+        "settled": true
+      },
+      {
+        "resource": "/market/snapshot",
+        "amount": "0.001",
+        "secondsAgo": 5,
+        "settled": true
+      },
+      {
+        "resource": "/market/snapshot",
+        "amount": "0.001",
+        "secondsAgo": 5,
+        "settled": true
+      },
+      {
+        "resource": "/market/snapshot",
+        "amount": "0.001",
+        "secondsAgo": 5,
+        "settled": true
+      },
+      {
+        "resource": "/market/snapshot",
+        "amount": "0.001",
+        "secondsAgo": 5,
+        "settled": true
+      },
+      {
+        "resource": "/market/snapshot",
+        "amount": "0.001",
+        "secondsAgo": 5,
+        "settled": true
+      },
+      {
+        "resource": "/market/snapshot",
+        "amount": "0.001",
+        "secondsAgo": 5,
+        "settled": true
+      },
+      {
+        "resource": "/market/snapshot",
+        "amount": "0.001",
+        "secondsAgo": 5,
+        "settled": true
+      },
+      {
+        "resource": "/market/snapshot",
+        "amount": "0.001",
+        "secondsAgo": 5,
+        "settled": true
+      }
+    ]
+  },
+  "action": {
+    "channel": "external",
+    "resource": "/market/snapshot",
+    "amount": "0.001",
+    "asset": "USDC",
+    "counterparty": {
+      "id": "x402-poc-desk",
+      "name": "POC Desk"
+    }
+  },
+  "expect": {
+    "decisionIn": [
+      "REVIEW",
+      "ESCALATE",
+      "REJECT"
+    ],
+    "decidingEngineIn": [
+      "risk",
+      "treasury",
+      "policy"
+    ]
+  }
+}

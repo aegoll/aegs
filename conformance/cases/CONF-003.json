@@ -1,0 +1,31 @@
+{
+  "id": "CONF-003",
+  "title": "Intent mismatch",
+  "level": "AEGS-1",
+  "control": "intent",
+  "rationale": "An action permitted by every other control, but outside what the agent was declared to be doing. Only an intent model can refuse this, which is why it is the case that most distinguishes an AEGS implementation from a budget checker.",
+  "setup": {
+    "intent": {
+      "purpose": "buy market data",
+      "maximumAmount": "1.00",
+      "allowedResources": [
+        "/market/*"
+      ],
+      "asset": "USDC"
+    }
+  },
+  "action": {
+    "channel": "external",
+    "resource": "/compute/batch",
+    "amount": "0.001",
+    "asset": "USDC",
+    "counterparty": {
+      "id": "x402-poc-desk",
+      "name": "POC Desk"
+    }
+  },
+  "expect": {
+    "decision": "REVIEW",
+    "decidingEngine": "intent"
+  }
+}

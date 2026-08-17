@@ -1,0 +1,23 @@
+{
+  "id": "CONF-004",
+  "title": "Sanctioned counterparty",
+  "level": "AEGS-2",
+  "control": "sanctions",
+  "rationale": "An absolute bar at any amount. A trivial payment to a sanctioned party must be refused as firmly as a large one -- if the amount can soften it, it is not a bar.",
+  "setup": {},
+  "action": {
+    "channel": "external",
+    "resource": "/market/snapshot",
+    "amount": "0.001",
+    "asset": "USDC",
+    "counterparty": {
+      "id": "ofac-listed-1",
+      "name": "Sanctioned Co",
+      "sanctioned": true
+    }
+  },
+  "expect": {
+    "decision": "REJECT",
+    "decidingEngine": "sanctions"
+  }
+}
