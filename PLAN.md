@@ -58,21 +58,21 @@ standard and an x402 accessory.
 
 ---
 
-## B2 — AEGS 0.1 normative prose ⬜
+## B2 — AEGS 0.1 normative prose 🔨
 
 The largest writing task in the whole plan, and the one that turns 13 schemas into a
 standard. Schemas say what a document looks like; only prose says what an
 implementation must *do*.
 
-- [ ] B2.1 `spec/00-introduction.md` — scope, non-goals, the claim: **autonomous payment should not mean unrestricted payment**
-- [ ] B2.2 RFC 2119 language throughout (MUST / SHOULD / MAY), stated once and used consistently
+- [x] B2.1 [`spec/00-introduction.md`](spec/00-introduction.md) — scope, non-goals, the claim, and **what is not established stated in the spec itself** rather than in a footnote
+- [x] B2.2 RFC 2119, stated once at [INTRO-3](spec/00-introduction.md) and enforced by the linter: capitals are normative, lower case is English, and a backticked keyword is being *named* rather than imposed
 - [ ] B2.3 `spec/01-model.md` — agent, controller, operator, counterparty, channel, envelope, verdict, control, profile
 - [ ] B2.4 `spec/02-controls.md` — the 13 controls, each with purpose, required inputs, required outputs, and what a conformant implementation must record
 - [ ] B2.5 `spec/03-channels.md` — **two channels never share an envelope.** Internal (tokens, real currency, provider key) and external (settlement, counterparty). Different currencies, different counterparties, different failure modes
 - [ ] B2.6 `spec/04-verdicts.md` — the four verdicts (APPROVE / REVIEW / ESCALATE / REJECT), the **narrowing rule** (no control may widen a verdict another set), and **evaluation order**
 - [ ] B2.7 State why order is normative even though the final verdict is order-independent: **the attributed control is not order-independent, and conformance scores attribution**
-- [ ] B2.8 `spec/05-arithmetic.md` — integer atomic units, the USD↔atomic boundary, and the rounding mode **specified explicitly** rather than left to a language default. Money never touches a float
-- [ ] B2.9 Specify negative and overflow handling normatively. Both were real vulnerabilities in the reference implementation; a spec that omits them lets the next implementation repeat them
+- [x] B2.8 [`spec/05-arithmetic.md`](spec/05-arithmetic.md) — ARITH-1..9. Rounding pinned to half-up at [ARITH-3](spec/05-arithmetic.md) because every language's default differs and none is wrong in isolation; an implementation inheriting its own has made a decision it did not know it was making
+- [x] B2.9 [ARITH-4](spec/05-arithmetic.md) and [ARITH-5](spec/05-arithmetic.md), both naming the defect they come from. ARITH-4 also fixes the **ordering**: the sign is refused *before* any envelope evaluation, which is the part the original bug got wrong
 - [ ] B2.10 `spec/06-four-states.md` — **absent ≠ not-run ≠ unknown ≠ zero.** This came from a real bug: an unmeasured vendor history rendered as `0` made every advisor treat established counterparties as strangers
 - [ ] B2.11 `spec/07-evidence.md` — append-only, hash-chained, canonical serialisation. Key order, number formatting and separators **change the hash**, so all three are normative
 - [ ] B2.12 Document the truncation property honestly in the spec, not only in a security report: any prefix of a hash chain is a valid chain. Specify the anchor requirement for the level that claims tamper-evidence
@@ -84,8 +84,8 @@ implementation must *do*.
 - [ ] B2.15b Note the independent convergence: #2299 uses **UNCERTAIN** as a state distinct from pass and fail. That is `absent ≠ not-run ≠ unknown ≠ zero` arriving from someone else, and it is evidence the four-state rule generalises. Cite it in [B2.10](#b2--aegs-01-normative-prose-)
 - [ ] B2.16 `spec/11-conformance.md` — levels, how they are claimed, what evidence a claim needs
 - [ ] B2.17 `spec/12-security-considerations.md` — the threat catalogue, including the three findings currently open
-- [ ] B2.18 Every normative statement cross-referenced to the conformance case or vector that checks it. **A MUST with no test is a wish**
-- [ ] B2.19 Test/CI: a linter that fails when a `MUST` has no cross-reference
+- [x] B2.18 Every normative clause cross-referenced. 9 clauses, 33 vectors, no orphans in either direction
+- [x] B2.19 [`tools/lint_normative.py`](tools/lint_normative.py), a **real** CI gate rather than `continue-on-error`. It caught two things on its first run, and neither was fixed by exempting anything — see Findings
 
 **Exit:** a specification someone outside this project could implement from, with every MUST tested.
 
@@ -120,7 +120,7 @@ before starting this section. Findings F1, F7 and F8 there change what this bind
 
 ---
 
-## B4 — Language-neutral test vectors ⬜
+## B4 — Language-neutral test vectors 🔨
 
 Useful immediately, and the bridge to any second implementation. Consumed by
 [`../aegoll/PLAN.md`](../aegoll/PLAN.md) A8.
@@ -131,18 +131,18 @@ runner, already covering *spending limits* and *authorization bypass*. Three rev
 concerns are open there, and our design answers all three — that is the alignment
 opportunity, detailed at [F5](../UPSTREAM-x402.md).
 
-- [ ] B4.1 `vectors/README.md` — file format: one JSON per vector, id, description, input, expected output, and the normative clause it checks. Compare field-for-field against upstream's `schema.json` (`path`, `headers`, `body`, `variants`, `n_requests`, `concurrent_requests`, attacker inputs) and adopt their names wherever they fit
-- [ ] B4.1a Answer their reviewer concern (3) by construction: **every vector names its spec version and section.** Ours must, and offering that discipline upstream is [U3.2](../UPSTREAM-x402.md)
+- [x] B4.1 [`vectors/README.md`](vectors/README.md) and [`vectors/schema.json`](vectors/schema.json) — a vector without a clause fails validation. Amounts are **always strings**, because a vector writing `2.5` as a JSON number would have lost precision before any implementation read it, and could not test the very thing ARITH-9 requires
+- [x] B4.1a Every vector names its spec version and clause, required by the schema. This is upstream reviewer concern (3) answered by construction rather than by intention
 - [ ] B4.1b Answer concern (1): sequence and concurrency vectors need **executable semantics**, not just declared fields. Upstream's runner ignores `variants`, `n_requests` and `concurrent_requests` — which is exactly why structuring and velocity evasion cannot be expressed there. Our runner must execute them or the two open red-team findings have no test
 - [ ] B4.2 Expected output covers all four: verdict, **attributed control**, resulting envelope state, and the record hash
-- [ ] B4.3 `vectors/arithmetic/` — atomic conversion, rounding at the boundary, min/max, negatives, overflow, currency confusion
+- [x] B4.3 [`vectors/arithmetic/`](vectors/arithmetic/) — **33 vectors, all 9 clauses.** Mutation-checked rather than assumed to bite: a half-even implementation fails 1, the prototype's original no-sign-check fails 3
 - [ ] B4.4 `vectors/envelopes/` — headroom, cumulative vs per-transaction, window boundaries, earned-authority multipliers
 - [ ] B4.5 `vectors/verdicts/` — narrowing, attribution, evaluation order, first-match-terminal rules
 - [ ] B4.6 `vectors/evidence/` — record projection, canonical serialisation, chain hash continuation
 - [ ] B4.7 Every one of the 7 CONF cases represented as vectors
 - [ ] B4.8 Every one of the 18 red-team attacks represented as vectors
 - [ ] B4.9 **The two known vulnerabilities are vectors on day one** — the negative amount and the 30-digit overflow — so no future implementation ships with the bugs the reference one already had. That alone justifies the vectors before anything else
-- [ ] B4.10 A vector count and coverage report in CI, so "we added a MUST but no vector" is visible
+- [x] B4.10 [`tools/check_vectors.py`](tools/check_vectors.py) reports coverage per clause and fails a vector citing a clause that does not exist — coverage checked in **both** directions
 
 **Exit:** four families populated, the reference implementation at 100%, coverage reported.
 
@@ -262,4 +262,37 @@ Two documents with different jobs. Conflating them produces one that does neithe
 
 ## Findings
 
-_(none yet)_
+### F-B2 · The linter earned its place on its first run — 2026-08-17
+
+`tools/lint_normative.py` fails a `MUST` with no cross-referenced test. It flagged two
+things immediately, and **neither was fixed by exempting anything** — which is the whole
+test of whether a lint rule is any good.
+
+**1. Three `INTRO` clauses carry a `MUST` that constrains the document, not
+implementations.** The RFC 2119 conventions, and the rule that every `MUST` needs a test.
+There is nothing for a vector to run.
+
+The fix is a marker in the **specification text itself** — *"Constrains this document, not
+implementations."* — so a reader sees the distinction too, and the marker cannot drift from
+the linter's view of it. A list inside the linter would have been invisible to anyone
+reading the spec, and would have quietly grown. One of the three, `INTRO-5`, turned out not
+to be meta at all: its `MUST` was inside a *definition* of what a profile is, so it was
+reworded rather than marked.
+
+**2. My own closing sentence used `MUST` in caps while talking about the keyword.** The
+linter was right. The fix is that it now strips inline code, because a backticked keyword is
+being *named* rather than imposed — contorting the prose to dodge a regex would be the
+linter dictating the writing.
+
+### F-B4 · Two rounding vectors where one would look sufficient — 2026-08-17
+
+`0.0000015` rounds to `2` under **both** half-up and half-even. A suite containing only
+that vector would pass under either mode and prove nothing about which one an
+implementation uses — coverage that reads as thorough and is not. Only `0.0000005`
+discriminates: half-up gives `1`, half-even gives `0`.
+
+Both are kept, and the note on each says why. The general lesson is worth carrying into the
+remaining families: **a vector that passes under the behaviour it was written to forbid is
+not a test.** The cheap way to check is to mutate the implementation and count how many
+vectors go red — for arithmetic, a half-even implementation fails 1 and the prototype's
+original no-sign-check fails 3.
