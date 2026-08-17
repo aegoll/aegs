@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://aegs.dev/schemas/authorization-0.1.json",
+  "$id": "https://aegoll.github.io/aegs/schemas/authorization-0.1.json",
   "title": "AEGS Authorization",
   "version": "0.1",
   "description": "Permission to act, granted before an action and bounded in scope and time. Distinct from an EconomicIntent: intent says what the agent was *sent to do*, authorization says what it is *permitted to do*. An agent can hold valid authorization and still act outside its intent, which is the gap a compromised or repurposed agent occupies.",

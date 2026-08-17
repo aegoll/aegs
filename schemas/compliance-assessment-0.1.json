@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://aegs.dev/schemas/compliance-assessment-0.1.json",
+  "$id": "https://aegoll.github.io/aegs/schemas/compliance-assessment-0.1.json",
   "title": "AEGS Compliance Assessment",
   "version": "0.1",
   "description": "Which control obligations an implementation asserts it exercised for one action, expressed against a named **profile** rather than a regulation.\n\nAEGS never asserts that an action is compliant with any law. It records that specified controls ran and what they found. Whether that satisfies an obligation is a legal determination requiring a qualified person, a jurisdiction, and facts a technical layer does not hold. See AEGS-CROSSWALK-001.",

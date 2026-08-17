@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://aegs.dev/schemas/budget-envelope-0.1.json",
+  "$id": "https://aegoll.github.io/aegs/schemas/budget-envelope-0.1.json",
   "title": "AEGS Budget Envelope",
   "version": "0.1",
   "description": "One spending constraint, and how much of it remains. AEGS distinguishes two kinds, because conflating them misleads every reader: a **cumulative** envelope accumulates over a window, while a **per-action cap** never accumulates and its 'used' figure is permanently zero. Rendering a cap as a spent budget states the opposite of what it means -- a real defect this project shipped and had to fix.",

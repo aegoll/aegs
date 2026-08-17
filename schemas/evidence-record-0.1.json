@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://aegs.dev/schemas/evidence-record-0.1.json",
+  "$id": "https://aegoll.github.io/aegs/schemas/evidence-record-0.1.json",
   "title": "AEGS Evidence Record",
   "version": "0.1",
   "description": "One tamper-evident entry in an append-only log. Distinct from a GovernanceDecision: the decision is *what was decided*, the evidence record is *the artefact proving it was decided then and has not changed since*.\n\nKNOWN LIMIT OF HASH CHAINING, stated in the schema because implementers must know it: any prefix of a valid chain is itself a valid chain. Editing an entry is detectable and deleting a middle entry is detectable, but **truncating the tail is not**. An implementation claiming tamper-evidence needs an external anchor -- `anchor` below -- or it can only detect edits, not erasure.",

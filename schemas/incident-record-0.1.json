@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://aegs.dev/schemas/incident-record-0.1.json",
+  "$id": "https://aegoll.github.io/aegs/schemas/incident-record-0.1.json",
   "title": "AEGS Incident Record",
   "version": "0.1",
   "description": "Something went wrong, or nearly did. AEGS requires that incidents be recordable as first-class objects rather than inferred from logs, because the events that matter most -- a control that failed, a refusal that was overridden, a vulnerability found -- are exactly the ones a log written by the failing system is least likely to describe well.\n\nA near-miss is an incident. An attack that was refused is worth recording as much as one that succeeded, because the difference is often luck.",

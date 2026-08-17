@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://aegs.dev/schemas/aml-assessment-0.1.json",
+  "$id": "https://aegoll.github.io/aegs/schemas/aml-assessment-0.1.json",
   "title": "AEGS AML/CFT Assessment",
   "version": "0.1",
   "description": "The interface for an anti-money-laundering and counter-terrorist-financing finding. AEGS specifies **what must be recorded and what must be decidable**, not the detection method -- mandating one vendor's typology set would be beyond the competence of a technical standard and would freeze a fast-moving field.\n\nIMPORTANT: emitting this object claims an assessment happened. An implementation without an AML control must omit it entirely rather than emit `score: 0`, which would assert a clean screening that never ran.",

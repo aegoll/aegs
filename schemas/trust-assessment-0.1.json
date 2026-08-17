@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://aegs.dev/schemas/trust-assessment-0.1.json",
+  "$id": "https://aegoll.github.io/aegs/schemas/trust-assessment-0.1.json",
   "title": "AEGS Trust Assessment",
   "version": "0.1",
   "description": "What is known about a counterparty from prior dealings. Deliberately separate from RiskAssessment: trust is a property of the *relationship*, risk is a property of the *action*, and a familiar counterparty can still be a risky transaction. Cold start must be untrusted rather than neutral -- a new counterparty that scores mid-range is indistinguishable from a mediocre known one.",

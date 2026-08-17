@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://aegs.dev/schemas/policy-0.1.json",
+  "$id": "https://aegoll.github.io/aegs/schemas/policy-0.1.json",
   "title": "AEGS Policy",
   "version": "0.1",
   "description": "A versioned, declarative statement of what an implementation will permit. AEGS requires that policy be identifiable and content-addressed, not that it use any particular rule language: two implementations may express the same intent very differently, and a crosswalk between them is a policy question rather than a schema one. The content hash is what makes a silent rule edit detectable, which is the property an auditor actually needs.",

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://aegs.dev/schemas/conformance-declaration-0.1.json",
+  "$id": "https://aegoll.github.io/aegs/schemas/conformance-declaration-0.1.json",
   "title": "AEGS Conformance Declaration",
   "version": "0.1",
   "description": "What an implementation claims it satisfies, and on whose word. A declaration is a claim, not a certification -- `attestation` distinguishes self-assessment from independent review, and an implementation that omits it is self-asserting by default.\n\nA level is claimable only when **every** case in it passes. Partial conformance is not conformance; it is a list of things that happen to work.",

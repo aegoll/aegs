@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://aegs.dev/schemas/risk-assessment-0.1.json",
+  "$id": "https://aegoll.github.io/aegs/schemas/risk-assessment-0.1.json",
   "title": "AEGS Risk Assessment",
   "version": "0.1",
   "description": "What an implementation concluded about the risk of one action. AEGS specifies the *shape* of the finding and deliberately not the model that produces it: mandating a scoring method would freeze a research question into a standard. `method` is required in spirit -- an auditor cannot weigh a score without knowing whether it came from deterministic terms, a model, or a vendor.",
