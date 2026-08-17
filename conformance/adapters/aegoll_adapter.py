@@ -1,8 +1,18 @@
-"""AEGL as an AEGS-CONF implementation under test.
+"""`aegoll` as an AEGS-CONF implementation under test.
 
-Everything AEGL-specific lives here. The runner imports none of it — the whole
-point of the boundary is that a second implementation writes a file like this one
-and nothing else changes.
+Everything implementation-specific lives here. The runner imports none of it — the
+whole point of the boundary is that a second implementation writes a file like this
+one and nothing else changes.
+
+**The implementation must be installed**, not sitting in a sibling directory. The
+prototype's version of this file did
+
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "aegl"))
+
+which quietly required the suite and the implementation to live in one monorepo. That
+is the opposite of what a conformance suite is for: it must be able to score something
+whose source you have never seen. `pip install aegoll`, or point `PYTHONPATH` at it,
+and this adapter finds it the same way any other consumer would.
 
 Each case gets a **fresh ephemeral store**, so cases cannot contaminate each other
 through accumulated history. A suite whose results depend on execution order is
@@ -11,24 +21,38 @@ measuring the order.
 
 from __future__ import annotations
 
+import importlib.util
 import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
-REPO = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(REPO / "aegl"))
-sys.path.insert(0, str(REPO / "conformance"))
+# Intra-suite import only — `runner` is a sibling module of this package, not another
+# project. Goes away when the suite is packaged as `aegs-conformance` (PLAN.md B5.2).
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from runner import Case  # noqa: E402
 
 BASE = datetime(2026, 8, 15, 12, 0, tzinfo=timezone.utc)
 
+#: Raised as a plain message rather than an ImportError several frames deep, because
+#: "the implementation under test is not installed" is a setup problem and should read
+#: like one.
+NOT_INSTALLED = (
+    "aegoll is not importable. AEGS-CONF scores an *installed* implementation:\n"
+    "  pip install aegoll\n"
+    "or set PYTHONPATH to its src/ directory. The suite itself needs none of it."
+)
 
-class AeglAdapter:
-    """Drives AEGL through one conformance case and returns a Decision Record."""
 
-    name = "aegl"
+def implementation_available() -> bool:
+    return importlib.util.find_spec("aegoll") is not None
+
+
+class AegollAdapter:
+    """Drives `aegoll` through one conformance case and returns a Decision Record."""
+
+    name = "aegoll"
 
     def __init__(self, agent_id: str = "conformance-agent") -> None:
         self.agent_id = agent_id
@@ -36,11 +60,14 @@ class AeglAdapter:
     def run_case(self, case: Case) -> dict[str, Any] | None:
         import tempfile
 
-        from aegl import record as record_mod
-        from aegl.clock import FixedClock
-        from aegl.config import available_bundles, load_bundle
-        from aegl.domain import Channel, Purpose, Vendor, Verdict, usd_to_atomic
-        from aegl.runtime import Aegl, Paths
+        if not implementation_available():
+            raise RuntimeError(NOT_INSTALLED)
+
+        from aegoll import record as record_mod
+        from aegoll.clock import FixedClock
+        from aegoll.config import available_bundles, load_bundle
+        from aegoll.domain import Channel, Purpose, Vendor, Verdict, usd_to_atomic
+        from aegoll.runtime import Aegoll, Paths
 
         bundle = load_bundle()
         wanted = case.setup.get("policy")
@@ -50,7 +77,7 @@ class AeglAdapter:
                     bundle = load_bundle(path)
                     break
 
-        aegl = Aegl(
+        aegoll = Aegoll(
             bundle=bundle,
             paths=Paths.ephemeral(tempfile.mkdtemp()),
             clock=FixedClock(BASE),
@@ -67,7 +94,7 @@ class AeglAdapter:
 
             # --- setup: history the engines will read ----------------------
             for i, row in enumerate(case.setup.get("history") or []):
-                aegl.store.record(
+                aegoll.store.record(
                     tx_id=f"{case.id}-hist-{i}",
                     at=BASE - timedelta(seconds=row.get("secondsAgo", 0)),
                     agent_id=self.agent_id,
@@ -84,7 +111,7 @@ class AeglAdapter:
             spec = case.setup.get("intent")
             if spec:
                 expired_hours = spec.get("expiredHoursAgo")
-                aegl.intents.declare(
+                aegoll.intents.declare(
                     agent_id=self.agent_id,
                     purpose=spec["purpose"],
                     maximum_usd=spec["maximumAmount"],
@@ -100,20 +127,20 @@ class AeglAdapter:
             # --- setup: a registered identity ------------------------------
             ident = case.setup.get("identity")
             if ident:
-                aegl.identities.register(
+                aegoll.identities.register(
                     agent_id=self.agent_id,
                     purpose=ident.get("purpose", "conformance"),
                     per_action_usd=ident.get("perAction"),
                     now=BASE,
                 )
                 if ident.get("status") and ident["status"] != "active":
-                    aegl.identities.set_status(self.agent_id, ident["status"])
+                    aegoll.identities.set_status(self.agent_id, ident["status"])
 
             # --- the action -------------------------------------------------
             channel = (
                 Channel.INTERNAL if action.get("channel") == "internal" else Channel.EXTERNAL
             )
-            request = aegl.build_request(
+            request = aegoll.build_request(
                 resource=action["resource"],
                 amount_usd=action["amount"],
                 vendor=vendor,
@@ -122,11 +149,11 @@ class AeglAdapter:
                 ),
                 channel=channel,
             )
-            aegl.authorize(request)
+            aegoll.authorize(request)
 
-            entries = [e for e in aegl.audit.entries() if e.payload.get("decision")]
+            entries = [e for e in aegoll.audit.entries() if e.payload.get("decision")]
             if not entries:
                 return None
             return record_mod.from_audit_entry(entries[-1])
         finally:
-            aegl.close()
+            aegoll.close()

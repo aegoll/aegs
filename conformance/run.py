@@ -1,8 +1,8 @@
 """Run AEGS-CONF against an implementation.
 
-    python conformance/run.py --adapter aegl
+    python conformance/run.py --adapter aegoll
     python conformance/run.py --adapter stub          # proves the suite discriminates
-    python conformance/run.py --adapter aegl --json
+    python conformance/run.py --adapter aegoll --json
 """
 
 from __future__ import annotations
@@ -18,7 +18,7 @@ sys.path.insert(0, str(HERE))
 from runner import Case, format_report, report, run  # noqa: E402
 
 ADAPTERS = {
-    "aegl": ("adapters.aegl_adapter", "AeglAdapter"),
+    "aegoll": ("adapters.aegoll_adapter", "AegollAdapter"),
     "stub": ("adapters.stub_adapter", "StubAdapter"),
 }
 
@@ -32,12 +32,23 @@ def load_adapter(name: str):
         )
     module_name, class_name = ADAPTERS[name]
     module = __import__(module_name, fromlist=[class_name])
+
+    # A missing implementation is a setup problem, not a conformance failure. Without
+    # this, an uninstalled implementation produces a plausible-looking "0/7 passed,
+    # AEGS-1 claimable: no" report -- a document somebody could publish, and one that
+    # says something false about a system that was never actually run.
+    check = getattr(module, "implementation_available", None)
+    if check is not None and not check():
+        raise SystemExit(
+            f"cannot score {name!r}: " + getattr(module, "NOT_INSTALLED", "not importable")
+        )
+
     return getattr(module, class_name)()
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="AEGS-CONF conformance suite")
-    parser.add_argument("--adapter", default="aegl", choices=sorted(ADAPTERS))
+    parser.add_argument("--adapter", default="aegoll", choices=sorted(ADAPTERS))
     parser.add_argument("--case", action="append", help="run only these case ids")
     parser.add_argument("--json", action="store_true")
     parser.add_argument("--out", metavar="PATH", help="write the JSON report here")

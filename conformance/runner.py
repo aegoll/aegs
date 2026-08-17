@@ -10,7 +10,7 @@ Cases, adapters, and the AEGS Decision Record schema. **Nothing else.** It impor
 no engine, no governance layer, no AEGL. An adapter hands it a Decision Record; it
 scores that record against the case's expectation.
 
-If scoring ever needs something from `aegl`, the boundary has moved to the wrong
+If scoring ever needs something from `aegoll`, the boundary has moved to the wrong
 place and the suite has stopped being a conformance test of a *standard*.
 
 ## The rule that makes a pass mean something
@@ -44,8 +44,13 @@ from pathlib import Path
 from typing import Any, Protocol
 
 CASES_DIR = Path(__file__).resolve().parent / "cases"
+
+#: The schemas now live beside the suite in the standard's own repository, rather than
+#: in an `aegs/` sibling of a monorepo. Kept as a path rather than a URL on purpose:
+#: scoring must work offline, and a runner that fetches its schema over the network can
+#: be made to pass by a network.
 SCHEMA_PATH = (
-    Path(__file__).resolve().parents[1] / "aegs" / "schemas" / "decision-record-0.1.json"
+    Path(__file__).resolve().parents[1] / "schemas" / "decision-record-0.1.json"
 )
 
 
