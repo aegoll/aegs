@@ -68,7 +68,7 @@ implementation must *do*.
 - [x] B2.2 RFC 2119, stated once at [INTRO-3](spec/00-introduction.md) and enforced by the linter: capitals are normative, lower case is English, and a backticked keyword is being *named* rather than imposed
 - [ ] B2.3 `spec/01-model.md` — agent, controller, operator, counterparty, channel, envelope, verdict, control, profile
 - [ ] B2.4 `spec/02-controls.md` — the 13 controls, each with purpose, required inputs, required outputs, and what a conformant implementation must record
-- [ ] B2.5 `spec/03-channels.md` — **two channels never share an envelope.** Internal (tokens, real currency, provider key) and external (settlement, counterparty). Different currencies, different counterparties, different failure modes
+- [x] B2.5 [ENV-9](spec/03-envelopes.md) — channels never share an envelope, and an implementation **MAY** share limits but not envelopes, because an envelope carries consumption. A fuller `03-channels.md` on the two-channel *model* can follow; the envelope rule is the enforceable half and it is written
 - [ ] B2.6 `spec/04-verdicts.md` — the four verdicts (APPROVE / REVIEW / ESCALATE / REJECT), the **narrowing rule** (no control may widen a verdict another set), and **evaluation order**
 - [ ] B2.7 State why order is normative even though the final verdict is order-independent: **the attributed control is not order-independent, and conformance scores attribution**
 - [x] B2.8 [`spec/05-arithmetic.md`](spec/05-arithmetic.md) — ARITH-1..9. Rounding pinned to half-up at [ARITH-3](spec/05-arithmetic.md) because every language's default differs and none is wrong in isolation; an implementation inheriting its own has made a decision it did not know it was making
@@ -136,7 +136,7 @@ opportunity, detailed at [F5](../UPSTREAM-x402.md).
 - [ ] B4.1b Answer concern (1): sequence and concurrency vectors need **executable semantics**, not just declared fields. Upstream's runner ignores `variants`, `n_requests` and `concurrent_requests` — which is exactly why structuring and velocity evasion cannot be expressed there. Our runner must execute them or the two open red-team findings have no test
 - [ ] B4.2 Expected output covers all four: verdict, **attributed control**, resulting envelope state, and the record hash
 - [x] B4.3 [`vectors/arithmetic/`](vectors/arithmetic/) — **33 vectors, all 9 clauses.** Mutation-checked rather than assumed to bite: a half-even implementation fails 1, the prototype's original no-sign-check fails 3
-- [ ] B4.4 `vectors/envelopes/` — headroom, cumulative vs per-transaction, window boundaries, earned-authority multipliers
+- [x] B4.4 [`vectors/envelopes/`](vectors/envelopes/) — **27 vectors, all 9 clauses.** Headroom including over-committed, the exact-equality boundary, per-call versus cumulative, absent versus zero, count envelopes, and channel separation. Earned-authority multipliers deferred: they are a *policy* mechanism the spec does not require, so vectoring them would test this implementation rather than the standard
 - [ ] B4.5 `vectors/verdicts/` — narrowing, attribution, evaluation order, first-match-terminal rules
 - [ ] B4.6 `vectors/evidence/` — record projection, canonical serialisation, chain hash continuation
 - [ ] B4.7 Every one of the 7 CONF cases represented as vectors
@@ -283,6 +283,23 @@ reworded rather than marked.
 linter was right. The fix is that it now strips inline code, because a backticked keyword is
 being *named* rather than imposed — contorting the prose to dodge a regex would be the
 linter dictating the writing.
+
+### F-B6 · The spec found a bug in the implementation, twice — 2026-08-17
+
+Both slices so far have found a real defect in `aegoll` while the clause was being written,
+rather than the other way round. That is the argument for writing prose and vectors
+together, and it is worth stating because the reverse was the expectation.
+
+**Arithmetic** turned up nothing new — the two vulnerabilities were already known and fixed,
+and the clauses documented them. But **envelopes** found [ENV-6](spec/03-envelopes.md):
+`binding` and `tightest` are two different questions and the reference report conflated
+them, so an approved decision displayed no envelope at all under a heading meaning *closest
+to biting*. The column went blank precisely when the agent was healthy and someone was
+checking headroom.
+
+Nothing in the implementation's own 449 tests could have caught that, because the code did
+exactly what it said — the defect was in what the two concepts *meant*, and only writing
+them down as separate requirements made the conflation visible.
 
 ### F-B4 · Two rounding vectors where one would look sufficient — 2026-08-17
 
