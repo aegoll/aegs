@@ -76,12 +76,28 @@ class Case:
     setup: dict[str, Any]
     action: dict[str, Any]
     expect: dict[str, Any]
+    #: Specification clauses this case checks, if any. Optional, and read by
+    #: `tools/lint_normative.py` so a clause whose requirement is structural — not
+    #: expressible as an input/output vector — can still be shown to have a test.
+    #: EVID-8 is the first: "records are derived from the journal, not written twice"
+    #: has no input/output pair that demonstrates it, because a second write path could
+    #: produce identical output for whatever cases you happened to test.
+    clauses: tuple[str, ...] = ()
 
     @classmethod
     def load_all(cls, directory: Path = CASES_DIR) -> list["Case"]:
         cases = []
         for path in sorted(directory.glob("CONF-*.json")):
             data = json.loads(path.read_text(encoding="utf-8"))
+            if "clauses" in data:
+                data["clauses"] = tuple(data["clauses"])
+            known = {f for f in cls.__dataclass_fields__}
+            unknown = sorted(set(data) - known)
+            if unknown:
+                raise SystemExit(
+                    f"{path.name}: unknown field(s) {unknown}. A case with a field the "
+                    "runner ignores is a case that silently tests less than it appears to."
+                )
             cases.append(cls(**data))
         return cases
 

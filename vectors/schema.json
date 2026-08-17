@@ -34,7 +34,11 @@
         "usd_to_atomic",
         "atomic_to_usd",
         "evaluate_envelopes",
-        "resolve_verdict"
+        "resolve_verdict",
+        "canonical_serialise",
+        "chain_hash",
+        "verify_chain",
+        "hash_strength"
       ],
       "description": "A closed set. A vector naming an operation no implementation is required to expose cannot be run, and an unrunnable vector is worse than an absent one because it looks like coverage."
     },
@@ -255,6 +259,91 @@
             "type": "string"
           },
           "description": "Controls declared dispositive: the finding determines attribution whenever present, whether or not it narrowed the verdict. VERD-4a requires the set and its precedence to be DOCUMENTED -- an undeclared dispositive control is indistinguishable from arbitrary attribution."
+        },
+        "payload": {
+          "type": "object",
+          "description": "An entry payload to canonicalise or hash."
+        },
+        "alsoPayload": {
+          "type": "object",
+          "description": "A second payload, semantically identical to `payload` but written differently. Used to show that the stored form does not affect the hash -- EVID-4."
+        },
+        "entries": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "seq",
+              "at",
+              "payload"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "seq": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "at": {
+                "type": "string"
+              },
+              "payload": {
+                "type": "object"
+              }
+            },
+            "description": "An entry without its hashes. The runner computes those, because the point is to test how an implementation computes them."
+          }
+        },
+        "seq": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "at": {
+          "type": "string"
+        },
+        "prevHash": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "The preceding entry's hash, or null for the first entry, which commits to the declared genesis value instead."
+        },
+        "tamper": {
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "enum": [
+                "edit",
+                "editMany",
+                "deleteMiddle",
+                "swap",
+                "truncate"
+              ],
+              "description": "How to alter the chain after building it. `truncate` is the one a hash chain cannot detect, and its vector asserts that verification SUCCEEDS -- see EVID-6."
+            },
+            "seq": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "seqs": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "payload": {
+              "type": "object"
+            },
+            "keep": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Entries to retain when truncating."
+            }
+          }
         }
       }
     },
@@ -396,6 +485,87 @@
                 "type": "string"
               },
               "description": "Controls that must have left evidence they ran."
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "canonical"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "canonical": {
+              "type": "string",
+              "description": "The exact canonical serialisation. Compared byte for byte, because every difference here is a different hash for the same decision."
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "hashesEqual"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "hashesEqual": {
+              "type": "boolean"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "valid"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "valid": {
+              "type": "boolean"
+            },
+            "problems": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "An empty array asserts NO problems. Problem wording is an implementation's own business, so a non-empty expectation uses `problemKinds` or `minProblems` instead."
+            },
+            "problemKinds": {
+              "type": "array",
+              "items": {
+                "enum": [
+                  "contentHash",
+                  "prevHash",
+                  "sequence"
+                ]
+              },
+              "description": "Categories of problem, not messages -- the same discipline as the arithmetic family's refusal reasons."
+            },
+            "minProblems": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "At least this many problems. Used where the exact count depends on how an implementation attributes a single tamper to multiple broken invariants."
+            },
+            "entryCount": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "minProperties": 1,
+          "properties": {
+            "declaresFunction": {
+              "type": "boolean"
+            },
+            "declaresBits": {
+              "type": "boolean"
+            },
+            "minBits": {
+              "type": "integer",
+              "description": "The minimum retained hash length in bits. The reference implementation currently fails this at 64."
             }
           }
         }
