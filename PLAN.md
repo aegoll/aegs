@@ -69,8 +69,8 @@ implementation must *do*.
 - [ ] B2.3 `spec/01-model.md` — agent, controller, operator, counterparty, channel, envelope, verdict, control, profile
 - [ ] B2.4 `spec/02-controls.md` — the 13 controls, each with purpose, required inputs, required outputs, and what a conformant implementation must record
 - [x] B2.5 [ENV-9](spec/03-envelopes.md) — channels never share an envelope, and an implementation **MAY** share limits but not envelopes, because an envelope carries consumption. A fuller `03-channels.md` on the two-channel *model* can follow; the envelope rule is the enforceable half and it is written
-- [ ] B2.6 `spec/04-verdicts.md` — the four verdicts (APPROVE / REVIEW / ESCALATE / REJECT), the **narrowing rule** (no control may widen a verdict another set), and **evaluation order**
-- [ ] B2.7 State why order is normative even though the final verdict is order-independent: **the attributed control is not order-independent, and conformance scores attribution**
+- [x] B2.6 [`spec/04-verdicts.md`](spec/04-verdicts.md) — VERD-1..9 plus VERD-4a. The severity ordering is normative because `REVIEW` and `ESCALATE` are the pair that invites disagreement: `REVIEW` is pausable, `ESCALATE` is blocking
+- [x] B2.7 [VERD-3](spec/04-verdicts.md) and [VERD-4](spec/04-verdicts.md) state the asymmetry as a pair, with `order-forward` / `order-reversed` vectors that hold the verdict constant while attribution changes
 - [x] B2.8 [`spec/05-arithmetic.md`](spec/05-arithmetic.md) — ARITH-1..9. Rounding pinned to half-up at [ARITH-3](spec/05-arithmetic.md) because every language's default differs and none is wrong in isolation; an implementation inheriting its own has made a decision it did not know it was making
 - [x] B2.9 [ARITH-4](spec/05-arithmetic.md) and [ARITH-5](spec/05-arithmetic.md), both naming the defect they come from. ARITH-4 also fixes the **ordering**: the sign is refused *before* any envelope evaluation, which is the part the original bug got wrong
 - [ ] B2.10 `spec/06-four-states.md` — **absent ≠ not-run ≠ unknown ≠ zero.** This came from a real bug: an unmeasured vendor history rendered as `0` made every advisor treat established counterparties as strangers
@@ -137,7 +137,7 @@ opportunity, detailed at [F5](../UPSTREAM-x402.md).
 - [ ] B4.2 Expected output covers all four: verdict, **attributed control**, resulting envelope state, and the record hash
 - [x] B4.3 [`vectors/arithmetic/`](vectors/arithmetic/) — **33 vectors, all 9 clauses.** Mutation-checked rather than assumed to bite: a half-even implementation fails 1, the prototype's original no-sign-check fails 3
 - [x] B4.4 [`vectors/envelopes/`](vectors/envelopes/) — **27 vectors, all 9 clauses.** Headroom including over-committed, the exact-equality boundary, per-call versus cumulative, absent versus zero, count envelopes, and channel separation. Earned-authority multipliers deferred: they are a *policy* mechanism the spec does not require, so vectoring them would test this implementation rather than the standard
-- [ ] B4.5 `vectors/verdicts/` — narrowing, attribution, evaluation order, first-match-terminal rules
+- [x] B4.5 [`vectors/verdicts/`](vectors/verdicts/) — **32 vectors, all ten clauses.** Mutation-checked: equality-as-narrowing fails 1, first-narrowing-wins fails 3, swapped `REVIEW`/`ESCALATE` fails 6, allowing widening fails 14
 - [ ] B4.6 `vectors/evidence/` — record projection, canonical serialisation, chain hash continuation
 - [ ] B4.7 Every one of the 7 CONF cases represented as vectors
 - [ ] B4.8 Every one of the 18 red-team attacks represented as vectors
@@ -283,6 +283,32 @@ reworded rather than marked.
 linter was right. The fix is that it now strips inline code, because a backticked keyword is
 being *named* rather than imposed — contorting the prose to dodge a regex would be the
 linter dictating the writing.
+
+### F-B7 · A vector caught a bug in the specification — 2026-08-17
+
+The first time the answer went the *other* direction, and it is the more valuable finding of
+the two shapes.
+
+[VERD-4](spec/04-verdicts.md) originally required attribution to **the last control that
+narrowed**. Checking it against the reference implementation showed a disagreement on two of
+five cases, and the implementation was right.
+
+Consider a sanctioned counterparty whose payment a spending limit also refuses. The limit
+narrowed; the sanctions screening did not, because the verdict was already `REJECT`. By the
+letter of the rule the decision is attributed to the *budget* — so the record says an agent
+was stopped by a spending limit when the truth is it tried to pay a sanctioned party. An
+operator raising the limit would find the payment still refused and nothing on the record to
+explain it.
+
+The lesson is not about sanctions. It is that **some findings are categorical rather than
+quantitative**, and an attribution rule expressed purely in terms of severity ordering cannot
+express that. `VERD-4a` adds *dispositive* controls, and requires the set and its precedence
+to be **documented** — because an undeclared dispositive control is indistinguishable from
+arbitrary attribution, which is what this section exists to prevent.
+
+Worth noting what made this findable: the vectors are written from the clause, and then run
+against something that already worked. A specification written from the code would have
+described the code and found nothing.
 
 ### F-B6 · The spec found a bug in the implementation, twice — 2026-08-17
 
