@@ -1,0 +1,29 @@
+# Python (conformance tooling)
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+.pytest_cache/
+.ruff_cache/
+.coverage
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Conformance run output — reports are published deliberately, not committed by accident
+conformance/out/
+*.report.json
+
+# Paywalled standards texts must never be committed. See LICENSES.md
+crosswalk/sources/*.pdf
+crosswalk/sources/*.docx
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
