@@ -85,7 +85,6 @@ jobs:
           python-version: "3.11"
       - name: Every MUST is cross-referenced
         run: python tools/lint_normative.py
-        continue-on-error: true  # remove once spec/ and the linter exist (PLAN B2)
 
   vectors:
     # Vector coverage report, so "we added a MUST but no vector" is visible
@@ -98,8 +97,7 @@ jobs:
           python-version: "3.11"
       - run: pip install jsonschema
       - name: Vectors validate against their own schema
-        run: python tools/check_vectors.py
-        continue-on-error: true  # remove once vectors/ exists (PLAN B4)
+        run: pip install "jsonschema>=4.20" && python tools/check_vectors.py
 
   conformance:
     # The runner must import no implementation. The stub adapter must keep

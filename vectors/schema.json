@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aegoll.github.io/aegs/vectors/schema.json",
+  "title": "AEGS test vector",
+  "version": "0.1",
+  "description": "One input, one expected output, and the normative clause it checks. The clause is required: a vector without one is a test of somebody's implementation rather than of this specification.",
+  "type": "object",
+  "required": [
+    "aegsVersion",
+    "id",
+    "clause",
+    "operation",
+    "description",
+    "input",
+    "expect"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "aegsVersion": {
+      "const": "0.1"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+/[a-z0-9-]+$",
+      "description": "`<family>/<name>`, matching the file path. Checked against the path by tools/check_vectors.py, because an id that disagrees with its filename makes a failure report point at the wrong file."
+    },
+    "clause": {
+      "type": "string",
+      "pattern": "^AEGS-0\\.1-[A-Z]+-[0-9]+$",
+      "description": "The normative clause this vector checks."
+    },
+    "operation": {
+      "enum": [
+        "usd_to_atomic",
+        "atomic_to_usd"
+      ],
+      "description": "A closed set. A vector naming an operation no implementation is required to expose cannot be run, and an unrunnable vector is worse than an absent one because it looks like coverage."
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "description": "One sentence, imperative."
+    },
+    "note": {
+      "type": "string",
+      "description": "Why this vector exists, when that is not self-evident. Used heavily for vectors that exist because something once went wrong."
+    },
+    "input": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "amount": {
+          "type": "string",
+          "description": "A decimal amount, ALWAYS as a string, including for integers. A vector writing 2.5 as a JSON number would have lost precision before any implementation read it — which would make this suite unable to test the very thing ARITH-9 requires."
+        },
+        "atomic": {
+          "type": "integer",
+          "description": "A count of atomic units. An integer here is safe: that is the point of ARITH-1."
+        },
+        "decimals": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 18,
+          "description": "The asset's precision. A property of the asset, not of this specification."
+        }
+      }
+    },
+    "expect": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["atomic"],
+          "additionalProperties": false,
+          "properties": {
+            "atomic": { "type": "integer" }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["usd"],
+          "additionalProperties": false,
+          "properties": {
+            "usd": {
+              "type": "string",
+              "pattern": "^-?[0-9]+\\.[0-9]+$",
+              "description": "Plain decimal, never exponent notation. Some languages format 0.000001 as 1e-06 — the same number and a different hash."
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["refused", "reason"],
+          "additionalProperties": false,
+          "properties": {
+            "refused": { "const": true },
+            "reason": {
+              "enum": ["negative", "overflow", "nonfinite", "unparseable"],
+              "description": "A CATEGORY, not a message. An implementation's wording is its own business; a vector checks that it refused for the right kind of reason. Matching exact strings would make this suite a test of one implementation's vocabulary, which is precisely what a conformance suite must not be."
+            }
+          }
+        }
+      ]
+    }
+  }
+}
