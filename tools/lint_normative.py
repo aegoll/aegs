@@ -26,7 +26,7 @@ VECTORS = HERE / "vectors"
 CASES = HERE / "conformance" / "cases"
 
 #: A clause heading: `## AEGS-0.1-ARITH-4 · A negative amount is refused`
-CLAUSE_HEADING = re.compile(r"^##\s+(AEGS-0\.1-[A-Z]+-\d+)\s*(?:·\s*(.*))?$")
+CLAUSE_HEADING = re.compile(r"^##\s+(AEGS-0\.1-[A-Z]+-\d+[a-z]?)\s*(?:·\s*(.*))?$")
 
 #: Normative keywords, in capitals. Lower-case "must" is ordinary English and is allowed —
 #: which is exactly why the specification says so in its conventions section.

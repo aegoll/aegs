@@ -26,14 +26,15 @@
     },
     "clause": {
       "type": "string",
-      "pattern": "^AEGS-0\\.1-[A-Z]+-[0-9]+$",
-      "description": "The normative clause this vector checks."
+      "pattern": "^AEGS-0\\.1-[A-Z]+-[0-9]+[a-z]?$",
+      "description": "The normative clause this vector checks. A clause identifier. A lowercase suffix (VERD-4a) inserts a clause without renumbering its neighbours, which matters because renumbering breaks every existing citation -- in the vectors, in the conformance cases, and anywhere outside this repository."
     },
     "operation": {
       "enum": [
         "usd_to_atomic",
         "atomic_to_usd",
-        "evaluate_envelopes"
+        "evaluate_envelopes",
+        "resolve_verdict"
       ],
       "description": "A closed set. A vector naming an operation no implementation is required to expose cannot be run, and an unrunnable vector is worse than an absent one because it looks like coverage."
     },
@@ -190,6 +191,70 @@
         "amountAtomic": {
           "type": "integer",
           "description": "An amount already in atomic units. An integer here is safe by construction -- that is what ARITH-1 buys. Distinct from `amount`, which is a decimal string because ARITH-9 requires one."
+        },
+        "standing": {
+          "enum": [
+            "APPROVE",
+            "REVIEW",
+            "ESCALATE",
+            "REJECT",
+            null
+          ],
+          "description": "The verdict already reached before these proposals are applied. Null where no rule matched at all."
+        },
+        "standingControl": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Which control produced the standing verdict. Needed by VERD-5: if nothing narrows, attribution falls to whatever decided, and an implementation attributing only refusals has records that go quiet when an auditor asks why something was allowed."
+        },
+        "proposals": {
+          "type": "array",
+          "description": "Controls' proposals, IN EVALUATION ORDER. Order does not affect the final verdict (VERD-3) and does affect attribution (VERD-4), which is the asymmetry this family exists to pin down.",
+          "items": {
+            "type": "object",
+            "required": [
+              "control",
+              "verdict"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "control": {
+                "type": "string",
+                "minLength": 1
+              },
+              "verdict": {
+                "enum": [
+                  "APPROVE",
+                  "REVIEW",
+                  "ESCALATE",
+                  "REJECT",
+                  null
+                ],
+                "description": "Null means NO OPINION, which is not approval. A control with nothing to say must not vote APPROVE, or a silent control looks like an endorsing one."
+              },
+              "recordsEvidence": {
+                "type": "boolean",
+                "description": "Whether this control leaves a trace in the record. VERD-6 requires evidence that a control RAN, independently of whether it changed the verdict."
+              }
+            }
+          }
+        },
+        "noRuleMatched": {
+          "type": "boolean",
+          "description": "No policy rule matched the action. VERD-8 requires that this not approve."
+        },
+        "advisorUnavailable": {
+          "type": "boolean",
+          "description": "The advisory model could not be reached. VERD-9 requires the decision not to depend on its availability."
+        },
+        "dispositive": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Controls declared dispositive: the finding determines attribution whenever present, whether or not it narrowed the verdict. VERD-4a requires the set and its precedence to be DOCUMENTED -- an undeclared dispositive control is indistinguishable from arbitrary attribution."
         }
       }
     },
@@ -293,6 +358,44 @@
                 ]
               },
               "description": "Expected consumed amount per envelope name. Null asserts that no consumed amount is reported, which is what ENV-4 requires of a per-call ceiling."
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "minProperties": 1,
+          "properties": {
+            "verdict": {
+              "enum": [
+                "APPROVE",
+                "REVIEW",
+                "ESCALATE",
+                "REJECT"
+              ]
+            },
+            "verdictNot": {
+              "enum": [
+                "APPROVE",
+                "REVIEW",
+                "ESCALATE",
+                "REJECT"
+              ],
+              "description": "The verdict MUST NOT be this. Used where AEGS constrains the outcome without fixing it -- VERD-8 forbids approving an unmatched action without dictating which non-approving verdict to use."
+            },
+            "attributedControl": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "The last control that narrowed. Null asserts that NONE of the proposals narrowed -- not that attribution is absent, which VERD-5 forbids."
+            },
+            "evidenced": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Controls that must have left evidence they ran."
             }
           }
         }
