@@ -24,5 +24,8 @@
       "REJECT"
     ],
     "decidingEngine": "policy"
-  }
+  },
+  "clauses": [
+    "AEGS-0.1-PATH-5"
+  ]
 }

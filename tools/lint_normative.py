@@ -3,7 +3,15 @@
     python tools/lint_normative.py
 
 Walks `spec/`, finds every clause containing a normative **MUST** or **MUST NOT**, and
-checks that at least one test vector or conformance case points at it. Also checks the
+checks that at least one test points at it. A test may be:
+
+* a **vector**, citing the clause in its `clause` field — the usual case;
+* a **conformance case**, citing it in a `clauses` array — for structural requirements that
+  no input/output pair can demonstrate;
+* one of the suite's **own tests**, declared in `conformance/tests/clause-coverage.json` —
+  for clauses that constrain a conformance suite rather than an implementation.
+
+The third is verified, not trusted: a named test that does not exist is an error. Also checks the
 reverse: a clause that carries no MUST should not claim vectors it does not need, and a
 normative statement outside a clause has no identifier to cite.
 
@@ -121,6 +129,50 @@ def _strip_inline_code(line: str) -> str:
     return re.sub(r"`[^`]*`", "", line)
 
 
+def cited_by_code() -> tuple[dict[str, list[str]], list[str]]:
+    """Clauses checked by the suite's own tests, plus any problems with the declaration.
+
+    Some clauses constrain a conformance SUITE rather than an implementation -- "the scorer
+    imports no implementation" has no input that demonstrates it, because a vector is data
+    handed to an implementation. Those are checked by code, and `clause-coverage.json` is how
+    that is declared.
+
+    The declaration is verified rather than trusted: every test named must actually exist in
+    the file, so a renamed or deleted test breaks the build instead of silently leaving a
+    clause unchecked. A mapping nobody checks is a list of promises.
+    """
+    cited: dict[str, list[str]] = {}
+    problems: list[str] = []
+    declaration = CASES.parent / "tests" / "clause-coverage.json"
+    if not declaration.is_file():
+        return cited, problems
+
+    try:
+        data = json.loads(declaration.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        return cited, [f"clause-coverage.json: not valid JSON: {exc}"]
+
+    source_path = declaration.parent / data.get("file", "")
+    if not source_path.is_file():
+        return cited, [f"clause-coverage.json: names {data.get('file')!r}, which is not there"]
+
+    source = source_path.read_text(encoding="utf-8")
+    defined = set(re.findall(r"^def (test_\w+)", source, re.M))
+
+    for clause, tests in (data.get("coverage") or {}).items():
+        missing = [name for name in tests if name not in defined]
+        if missing:
+            problems.append(
+                f"clause-coverage.json: {clause} names test(s) that do not exist in "
+                f"{source_path.name}: {', '.join(missing)}. A mapping nobody checks is a "
+                "list of promises."
+            )
+            continue
+        cited.setdefault(clause, []).extend(f"{source_path.name}::{n}" for n in tests)
+
+    return cited, problems
+
+
 def stray_normative_text() -> list[str]:
     """Normative keywords outside any clause. They have no identifier, so nothing can cite them."""
     stray: list[str] = []
@@ -156,6 +208,10 @@ def main() -> int:
     for clause, names in cited_by_cases().items():
         cited.setdefault(clause, []).extend(names)
 
+    code_cited, code_problems = cited_by_code()
+    for clause, names in code_cited.items():
+        cited.setdefault(clause, []).extend(names)
+
     normative = {
         cid: meta for cid, meta in found.items()
         if meta["normative"] and not meta["meta"]
@@ -175,6 +231,12 @@ def main() -> int:
         print(f"  {mark}  {cid:22} {count:2} test(s)  {meta['title'][:44]}")
 
     problems = False
+
+    if code_problems:
+        problems = True
+        print(f"\n{len(code_problems)} problem(s) in the code-coverage declaration:")
+        for problem in code_problems:
+            print(f"  {problem}")
 
     if untested:
         problems = True

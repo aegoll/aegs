@@ -38,7 +38,12 @@
         "canonical_serialise",
         "chain_hash",
         "verify_chain",
-        "hash_strength"
+        "hash_strength",
+        "classify_state",
+        "classify_control",
+        "clamp_delegation",
+        "disclose",
+        "evaluate_profile"
       ],
       "description": "A closed set. A vector naming an operation no implementation is required to expose cannot be run, and an unrunnable vector is worse than an absent one because it looks like coverage."
     },
@@ -344,6 +349,81 @@
               "description": "Entries to retain when truncating."
             }
           }
+        },
+        "record": {
+          "type": "object",
+          "description": "A record fragment to classify a field of."
+        },
+        "field": {
+          "type": "string",
+          "description": "Which field of `record` to classify."
+        },
+        "control": {
+          "type": "string",
+          "description": "A control name to classify as defined or an extension."
+        },
+        "chain": {
+          "type": "array",
+          "description": "A delegation chain, delegator first. ID-4 clamps to the narrowest step, not to the root.",
+          "items": {
+            "type": "object",
+            "required": [
+              "agent",
+              "perActionAtomic"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "agent": {
+                "type": "string"
+              },
+              "perActionAtomic": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "description": "Null means this step declares no limit of its own, which inherits rather than widens."
+              }
+            }
+          }
+        },
+        "identity": {
+          "type": "object",
+          "description": "An identity to project for an audience."
+        },
+        "audience": {
+          "enum": [
+            "vendor",
+            "auditor"
+          ],
+          "description": "Who the projection is for. Different audiences are different projections of one identity, decided where the knowledge is."
+        },
+        "assessorUnreachable": {
+          "type": "boolean",
+          "description": "An external assessor could not be reached. PATH-3 requires not-run, never a pass."
+        },
+        "riskScore": {
+          "type": "string",
+          "description": "A risk score present in the record. CTRL-5 requires that it not decide on its own."
+        },
+        "profile": {
+          "type": "string",
+          "description": "A profile id from ../profiles/. On `resolve_verdict` its purpose is to be IGNORED: PROF-1 forbids a profile from affecting a verdict, so vectors differing only in this field must produce identical results."
+        },
+        "profiles": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "extendsProfile": {
+          "type": "string",
+          "description": "The profile the one under test extends."
+        },
+        "controls": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       }
     },
@@ -566,6 +646,123 @@
             "minBits": {
               "type": "integer",
               "description": "The minimum retained hash length in bits. The reference implementation currently fails this at 64."
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "state"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "state": {
+              "enum": [
+                "absent",
+                "not-run",
+                "unknown",
+                "zero",
+                "measured",
+                "no-opinion"
+              ],
+              "description": "One of the four states, plus `measured` for a non-zero measurement and `no-opinion` for STATE-4."
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "enum": [
+                "defined",
+                "extension"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "effectiveAtomic"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "effectiveAtomic": {
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "limitedBy": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "Which step of the chain the clamp came from. Naming it is what makes the clamp auditable."
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "minProperties": 1,
+          "properties": {
+            "includes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "excludes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Fields that MUST NOT appear in the projection. `spendingLimits` is the sharpest -- disclosing remaining budget invites a seller to charge exactly that."
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "minProperties": 1,
+          "properties": {
+            "onlyTightens": {
+              "type": "boolean"
+            },
+            "tightened": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "requiredCount": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "listedCount": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "enforces": {
+              "type": "boolean"
+            },
+            "allOptional": {
+              "type": "boolean"
+            },
+            "requirement": {
+              "enum": [
+                "OPTIONAL",
+                "MUST_RECORD",
+                "MUST_EXERCISE"
+              ]
+            },
+            "everyRequiredNamesAPath": {
+              "type": "boolean"
             }
           }
         }

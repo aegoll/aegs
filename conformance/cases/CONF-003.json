@@ -27,5 +27,8 @@
   "expect": {
     "decision": "REVIEW",
     "decidingEngine": "intent"
-  }
+  },
+  "clauses": [
+    "AEGS-0.1-CTRL-3"
+  ]
 }

@@ -84,6 +84,9 @@ jobs:
         with:
           python-version: "3.11"
       - name: Every MUST is cross-referenced
+        # Also verifies conformance/tests/clause-coverage.json: a clause declared as
+        # checked by a named test fails the build if that test does not exist. A mapping
+        # nobody checks is a list of promises.
         run: python tools/lint_normative.py
 
   vectors:

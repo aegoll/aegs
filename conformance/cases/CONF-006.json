@@ -92,5 +92,8 @@
   },
   "expect": {
     "decision": "APPROVE"
-  }
+  },
+  "clauses": [
+    "AEGS-0.1-CTRL-7"
+  ]
 }

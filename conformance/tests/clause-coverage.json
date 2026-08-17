@@ -1,0 +1,50 @@
+{
+  "$comment": [
+    "Which of this suite's own tests checks which specification clause.",
+    "",
+    "The CONF-* clauses in spec/11-conformance.md constrain a conformance SUITE rather than an",
+    "implementation, so they cannot be checked by a test vector -- a vector is data handed to an",
+    "implementation, and there is no input that demonstrates 'the scorer imports nothing'. They",
+    "are checked by this suite's own tests, which are code.",
+    "",
+    "This file is how tools/lint_normative.py sees them. It is not a list of promises: the linter",
+    "verifies that every test named here actually exists in test_conformance.py, so a renamed or",
+    "deleted test breaks the build rather than silently leaving a clause unchecked.",
+    "",
+    "Adding a clause here is a claim that the named tests really do check it. That claim is on the",
+    "person adding it, which is why each entry names specific tests rather than the file."
+  ],
+  "aegsVersion": "0.1",
+  "file": "test_conformance.py",
+  "coverage": {
+    "AEGS-0.1-CONF-1": [
+      "test_aegoll_can_claim_both_levels",
+      "test_every_aegoll_record_satisfies_the_schema"
+    ],
+    "AEGS-0.1-CONF-2": [
+      "test_a_right_verdict_for_the_wrong_reason_is_not_a_pass",
+      "test_a_wrong_reason_is_reported_separately_from_a_failure",
+      "test_every_refusal_case_constrains_attribution"
+    ],
+    "AEGS-0.1-CONF-3": [
+      "test_declining_a_case_is_distinct_from_failing_it",
+      "test_an_adapter_that_raises_fails_only_its_own_case"
+    ],
+    "AEGS-0.1-CONF-4": [
+      "test_aegoll_can_claim_both_levels",
+      "test_the_stub_does_not_pass"
+    ],
+    "AEGS-0.1-CONF-5": [
+      "test_the_runner_imports_no_implementation",
+      "test_adding_a_case_requires_no_python"
+    ],
+    "AEGS-0.1-CONF-6": [
+      "test_the_stub_passes_what_it_genuinely_implements",
+      "test_the_stub_fails_the_controls_it_lacks"
+    ],
+    "AEGS-0.1-CONF-7": [
+      "test_a_declaration_carries_what_it_must",
+      "test_a_failing_declaration_is_still_a_declaration"
+    ]
+  }
+}

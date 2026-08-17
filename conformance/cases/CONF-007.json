@@ -31,5 +31,11 @@
       "intent",
       "identity"
     ]
-  }
+  },
+  "clauses": [
+    "AEGS-0.1-ID-1",
+    "AEGS-0.1-ID-5",
+    "AEGS-0.1-CTRL-3",
+    "AEGS-0.1-PATH-4"
+  ]
 }

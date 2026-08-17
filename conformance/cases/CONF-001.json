@@ -20,6 +20,7 @@
     "decidingEngine": "treasury"
   },
   "clauses": [
-    "AEGS-0.1-EVID-8"
+    "AEGS-0.1-EVID-8",
+    "AEGS-0.1-PATH-1"
   ]
 }

@@ -199,6 +199,46 @@ def test_an_adapter_that_raises_fails_only_its_own_case(cases):
 # --- the boundary ----------------------------------------------------------
 
 
+def test_a_declaration_carries_what_it_must(cases):
+    """AEGS-0.1-CONF-7: a published declaration states the version, the profile, and every
+    per-case outcome.
+
+    A declaration reading "aegs-1: claimed" asks to be trusted; one listing each case and its
+    outcome can be checked, and disputed. Publishing failures is what makes publishing passes
+    worth anything, so the per-case detail is the requirement rather than a nicety.
+    """
+    data = report("aegoll", run(AegollAdapter(), cases))
+
+    assert data["aegsVersion"] == "0.1", "no specification version in the declaration"
+    assert data["suite"], "no suite named"
+    assert data["implementation"], "no implementation named"
+    assert data["levels"], "no profile levels in the declaration"
+
+    outcomes = data["results"]
+    assert len(outcomes) == len(cases), "not every case is reported"
+    for row in outcomes:
+        assert row["case"], row
+        assert row["outcome"], row
+        assert row["level"], "a per-case outcome with no level cannot be attributed to a claim"
+
+
+def test_a_failing_declaration_is_still_a_declaration(cases):
+    """CONF-7 again, from the other side: the stub scores 2/7 and still produces a complete,
+    publishable report.
+
+    A suite that could only describe successes would be a marketing channel. The stub is the
+    proof that a failing result is expressible in the same shape as a passing one.
+    """
+    data = report("stub", run(StubAdapter(), cases))
+
+    assert data["aegsVersion"] == "0.1"
+    assert len(data["results"]) == len(cases)
+    assert any(r["outcome"] != "PASS" for r in data["results"]), "the stub should not pass"
+    assert not all(v["claimable"] for v in data["levels"].values()), (
+        "the stub must not be able to claim every level"
+    )
+
+
 def test_the_runner_imports_no_implementation():
     """If scoring needs anything from `aegoll`, the suite has stopped testing a
     standard and started testing us."""
