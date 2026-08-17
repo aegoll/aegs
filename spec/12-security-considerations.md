@@ -86,6 +86,22 @@ Delegation escalation, use of a revoked identity, reuse of an expired intent, an
 one agent's authority for another's are all addressed by [ID-4](08-identity.md),
 [ID-5](08-identity.md) and [CTRL-3](02-controls.md).
 
+> **Delegation escalation was live, and reachable by omission.** The reference implementation
+> compared a delegate's limits against its delegator's and refused any that were larger — which
+> detects nothing when the delegate declares *no* limit at all. A child agent that simply left the
+> field out was neither refused nor constrained: the comparison found nothing comparable, and the
+> child's own per-action check did not fire because it had no limit to check. **Declaring nothing
+> was strictly more permissive than declaring a large number**, and a $1.00 payment was approved
+> under a parent capped at $0.002.
+>
+> The implementation's own comment said the policy envelopes would cover it. They do not, and this
+> is worth stating generally: **envelopes are treasury-scoped and never inherit an identity's
+> ceiling**, so nothing downstream of the identity check knew a tighter limit had been declared
+> upstream. ID-4 says *clamp to the narrower* rather than *refuse the wider* for exactly this
+> reason — a clamp has to produce a number, so there is no case it can quietly fail to cover.
+>
+> Found by writing ID-4 and then discovering the implementation did not do what it said.
+
 > The intent case is the one that hid a real defect. An expired intent was indistinguishable from
 > *no intent declared*, because the implementation filtered expired intents out of its lookup —
 > so a lapsed agent was waved through as merely ungoverned. The engine was correct throughout and
