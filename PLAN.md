@@ -6,7 +6,7 @@ implementation can be scored.
 
 Master plan: [`../PLAN.md`](../PLAN.md) · Context and rules: [`../CONTEXT.md`](../CONTEXT.md)
 Port source (**read-only**): `../x402/aegs/` (13 schemas + crosswalk) and `../x402/conformance/` (7 cases, 18 tests) — [`../x402-REFERENCE.md`](../x402-REFERENCE.md)
-Kickstart already present here: `AEGS-CROSSWALK-001.md`, `schemas/` — 13 JSON Schema files
+Ported in: 13 schemas, the crosswalk, and the 7-case conformance suite — all green here.
 
 **The standard is protocol-neutral.** x402 stablecoins are the first *binding*, not the
 subject. AP2, MCP payments, cards and account-to-account are later bindings against the
@@ -15,7 +15,7 @@ standard and an x402 accessory.
 
 ---
 
-## B0 — Bootstrap and licence ⬜
+## B0 — Bootstrap and licence 🔨
 
 - [x] B0.1 Licence split recorded in [`LICENSES.md`](LICENSES.md) — **CC-BY-4.0** for spec text (`spec/`, `bindings/`, `crosswalk/`, `schemas/`, `vectors/`, `upstream/`), **Apache-2.0** for tooling. Apache text present as `LICENSE`
 - [ ] B0.1a Add `LICENSE-CC-BY-4.0` with the **verbatim** text from `creativecommons.org/licenses/by/4.0/legalcode.txt`. Not written from memory — a licence file that is *almost* the real text is worse than none
@@ -25,6 +25,7 @@ standard and an x402 accessory.
 - [x] B0.3 Version policy in [`CONTRIBUTING.md`](CONTRIBUTING.md) — `AEGS 0.1` moves independently of any implementation's semver; every record and declaration states both. Patch/minor/major defined, errata published rather than silently corrected
 - [x] B0.4 **Schema `$id` host decided: GitHub Pages** — `https://aegoll.github.io/aegs/schemas/<name>-0.1.json`. `aegs.dev` was checked and does **not** resolve (DNS `ENOTFOUND`), so the prototype's 13 schemas all carry a `$id` that 404s. Owner's decision, 2026-08-17: free, resolves today, and hosted by the repo itself so the identifier cannot drift from the file it names. Applied at [B1.2a](#b1--import-the-prototypes-schemas-)
 - [ ] B0.4a Enable GitHub Pages on this repo, serving `main`, so the `$id` URLs actually resolve. **A `$id` that 404s is a broken standard** — and switching hosts after 0.1 publishes is a breaking change
+- [ ] B0.4c **This repo is private** (checked 2026-08-17), and Pages will not serve a private repo. So the `$id` URLs cannot resolve until the repo is public — the identifiers are correct and unserved, which is the right way round, but **AEGS 0.1 cannot publish before this is settled**. Tracked in [`../CONTEXT.md`](../CONTEXT.md) §4a
 - [ ] B0.4b Add a redirect or note for anyone who followed the old `aegs.dev` identifier out of the prototype, if any schema ever leaked with it
 - [x] B0.5 CI validates every schema as Draft 2020-12 and every example against its schema — [`.github/workflows/ci.yml`](.github/workflows/ci.yml). Jobs also stubbed for the normative-cross-reference linter, vector checks, and the stub-adapter-still-fails assertion
 - [x] B0.6 [`CONTRIBUTING.md`](CONTRIBUTING.md) — four change kinds with different bars, the three questions a spec-change issue must answer, hard rules for prose/schemas/vectors/bindings, and what gets declined
@@ -33,12 +34,12 @@ standard and an x402 accessory.
 
 ---
 
-## B1 — Import the prototype's schemas ⬜
+## B1 — Import the prototype's schemas 🔨
 
-- [ ] B1.1 Copy `../x402/aegs/schemas/` in and commit faithfully with trailer `Ported-from: Jayzilva/x402@e3e295b aegs/schemas/` ([P1](../x402-REFERENCE.md))
-- [ ] B1.2 Nothing to reconcile — **this repo has no schemas yet.** The 13 schemas and the crosswalk exist *only* in `../x402/aegs/`, so the port is a clean first arrival
-- [ ] B1.2a **Rewrite `$id` in all 13 schemas** from `https://aegs.dev/schemas/...` to `https://aegoll.github.io/aegs/schemas/...` ([B0.4](#b0--bootstrap-and-licence-)). A **separate commit after** the faithful port, so the diff shows exactly what changed and why
-- [ ] B1.3 Confirm all 13 schemas validate as Draft 2020-12
+- [x] B1.1 Schemas and crosswalk ported faithfully — `67dedc3`
+- [x] B1.2 Nothing to reconcile — confirmed: this repo held no schemas, so the port was a clean first arrival
+- [x] B1.2a `$id` rewritten in all 13 schemas — `bbb2f31`, a separate commit after the faithful port
+- [x] B1.3 All 13 validate as Draft 2020-12, before and after the `$id` rewrite
 - [ ] B1.4 Inventory table in `spec/control-set.md`, marking engine-backed vs schema-only:
 
   | Control | State in the reference implementation |
@@ -151,11 +152,11 @@ opportunity, detailed at [F5](../UPSTREAM-x402.md).
 Ships as its own installable package. **A conformance suite that arrives as part of
 the thing it tests is not a conformance suite.**
 
-- [ ] B5.1 Port `../x402/conformance/` in as `conformance/`, faithful copy first, provenance trailer recorded ([P1](../x402-REFERENCE.md))
+- [x] B5.1 Conformance suite ported faithfully — `08802e9` — then repointed at the ported package — `4641e15`
 - [ ] B5.2 Package as `aegs-conformance` on PyPI — installable by someone testing a layer that is not `aegoll`
-- [ ] B5.3 Keep the property the prototype already has: **the runner imports no implementation.** It scores Decision Records
+- [x] B5.3 The runner still imports no implementation, and the test that asserts it now bans both `aegoll` and `aegl`
 - [ ] B5.4 `conformance/adapters/README.md` — the adapter interface, written for a third party with no access to this codebase
-- [ ] B5.5 Keep the stub adapter (a naive threshold, scores 2/7). Its whole job is proving the suite bites
+- [x] B5.5 Stub adapter kept and still scores **2/7** — 4 fail, 1 not-implemented. The suite bites
 - [ ] B5.6 Add cases past CONF-007 as the spec grows: profile enforcement, binding neutrality, four-state handling, delegation clamp, evidence-chain continuation
 - [ ] B5.7 Keep the **right-reason** rule: a verdict that is correct but attributed to the wrong control is recorded separately. It was right by accident, and the same case shaped differently would fail
 - [ ] B5.8 Machine-readable report with claimable levels, and a human-readable one that names *why* each case scored as it did
