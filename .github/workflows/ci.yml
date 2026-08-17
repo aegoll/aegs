@@ -95,9 +95,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - run: pip install jsonschema
+      - run: pip install "jsonschema>=4.20"
       - name: Vectors validate against their own schema
-        run: pip install "jsonschema>=4.20" && python tools/check_vectors.py
+        run: python tools/check_vectors.py
 
   conformance:
     # The runner must import no implementation. The stub adapter must keep
@@ -111,7 +111,12 @@ jobs:
       - run: pip install pytest jsonschema
       - name: Suite self-tests
         run: pytest conformance/tests -q
-        continue-on-error: true  # remove once conformance/ is ported (PLAN B5.1)
       - name: Stub adapter still fails most cases
-        run: python conformance/run.py --adapter stub
-        continue-on-error: true
+        # Expected to exit non-zero: it scores 2/7, and that is the point. Its whole
+        # job is proving the suite discriminates, so a PASS here would be the failure.
+        run: |
+          if python conformance/run.py --adapter stub; then
+            echo "::error::the stub adapter passed. The suite has stopped discriminating."
+            exit 1
+          fi
+          echo "stub still fails, as it must"
