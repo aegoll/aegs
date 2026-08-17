@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aegs.dev/schemas/trust-assessment-0.1.json",
+  "title": "AEGS Trust Assessment",
+  "version": "0.1",
+  "description": "What is known about a counterparty from prior dealings. Deliberately separate from RiskAssessment: trust is a property of the *relationship*, risk is a property of the *action*, and a familiar counterparty can still be a risky transaction. Cold start must be untrusted rather than neutral -- a new counterparty that scores mid-range is indistinguishable from a mediocre known one.",
+  "type": "object",
+  "required": [
+    "aegsVersion",
+    "assessed"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "aegsVersion": {
+      "const": "0.1"
+    },
+    "assessedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "assessed": {
+      "type": "boolean",
+      "description": "False means this control exists in the implementation and did not run for this action. Absent from a GovernanceDecision means the implementation does not have the control at all. The two are different statements and must not be collapsed."
+    },
+    "score": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Normalised 0..1, or null when genuinely unknown. Never 0 to mean 'unknown' -- an unmeasured value rendered as zero is not a missing fact, it is a wrong one, and no reader can tell the difference."
+    },
+    "level": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Implementation-defined band, e.g. LOW/HIGH."
+    },
+    "indicators": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Named signals that fired. Absence of indicators is not evidence of absence of risk."
+    },
+    "method": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "How the score was produced -- deterministic terms, a model, a third-party service. An auditor needs this to weigh the number."
+    },
+    "detail": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "counterpartyId": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "settledCount": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0,
+      "description": "Null means not measured. Never 0 to mean unknown -- this exact conflation caused every advisor in this project to treat established counterparties as strangers."
+    },
+    "failedCount": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "disputedCount": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "relationshipAgeDays": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "earnedAuthority": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": true,
+      "description": "Any uplift granted on the basis of history. Recording it matters because cheap reputation converted into spending power is a named attack."
+    }
+  }
+}

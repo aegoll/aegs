@@ -1,0 +1,138 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aegs.dev/schemas/conformance-declaration-0.1.json",
+  "title": "AEGS Conformance Declaration",
+  "version": "0.1",
+  "description": "What an implementation claims it satisfies, and on whose word. A declaration is a claim, not a certification -- `attestation` distinguishes self-assessment from independent review, and an implementation that omits it is self-asserting by default.\n\nA level is claimable only when **every** case in it passes. Partial conformance is not conformance; it is a list of things that happen to work.",
+  "type": "object",
+  "required": [
+    "aegsVersion",
+    "implementation",
+    "aegsLevel",
+    "declaredAt",
+    "attestation",
+    "results"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "aegsVersion": {
+      "const": "0.1"
+    },
+    "implementation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "version": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "vendor": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "rails": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "frameworks": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "aegsLevel": {
+      "enum": [
+        "AEGS-0",
+        "AEGS-1",
+        "AEGS-2",
+        "AEGS-3",
+        "AEGS-4"
+      ]
+    },
+    "declaredAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "attestation": {
+      "enum": [
+        "self",
+        "second-party",
+        "independent"
+      ],
+      "description": "`self` is the honest default. Anything else names the reviewer."
+    },
+    "reviewer": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "suiteVersion": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Which conformance suite version produced the results."
+    },
+    "results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "caseId",
+          "outcome"
+        ],
+        "properties": {
+          "caseId": {
+            "type": "string"
+          },
+          "outcome": {
+            "enum": [
+              "PASS",
+              "WRONG_REASON",
+              "FAIL",
+              "NOT_IMPLEMENTED",
+              "INVALID_RECORD"
+            ],
+            "description": "WRONG_REASON is not a pass: the verdict was right and the control under test did not cause it."
+          },
+          "detail": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    },
+    "controlsNotImplemented": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Named honestly. An implementation that lists nothing here is claiming completeness."
+    },
+    "knownLimitations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "A declaration with no limitations is claiming more than any system can support."
+    }
+  }
+}

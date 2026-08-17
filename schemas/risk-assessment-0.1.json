@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aegs.dev/schemas/risk-assessment-0.1.json",
+  "title": "AEGS Risk Assessment",
+  "version": "0.1",
+  "description": "What an implementation concluded about the risk of one action. AEGS specifies the *shape* of the finding and deliberately not the model that produces it: mandating a scoring method would freeze a research question into a standard. `method` is required in spirit -- an auditor cannot weigh a score without knowing whether it came from deterministic terms, a model, or a vendor.",
+  "type": "object",
+  "required": [
+    "aegsVersion",
+    "assessed"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "aegsVersion": {
+      "const": "0.1"
+    },
+    "assessedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "assessed": {
+      "type": "boolean",
+      "description": "False means this control exists in the implementation and did not run for this action. Absent from a GovernanceDecision means the implementation does not have the control at all. The two are different statements and must not be collapsed."
+    },
+    "score": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Normalised 0..1, or null when genuinely unknown. Never 0 to mean 'unknown' -- an unmeasured value rendered as zero is not a missing fact, it is a wrong one, and no reader can tell the difference."
+    },
+    "level": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Implementation-defined band, e.g. LOW/HIGH."
+    },
+    "indicators": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Named signals that fired. Absence of indicators is not evidence of absence of risk."
+    },
+    "method": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "How the score was produced -- deterministic terms, a model, a third-party service. An auditor needs this to weigh the number."
+    },
+    "detail": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "terms": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "value"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "value": {
+            "type": "number"
+          },
+          "weight": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "detail": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "description": "The contributions behind the score. An unexplainable risk score is useless in an audit."
+    },
+    "behavioural": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": true,
+      "description": "Sequence-level findings -- structuring, velocity, fragmentation. Absent where the implementation has no behavioural control; this project's own red team found that gap open."
+    }
+  }
+}

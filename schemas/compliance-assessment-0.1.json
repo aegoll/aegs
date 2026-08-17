@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aegs.dev/schemas/compliance-assessment-0.1.json",
+  "title": "AEGS Compliance Assessment",
+  "version": "0.1",
+  "description": "Which control obligations an implementation asserts it exercised for one action, expressed against a named **profile** rather than a regulation.\n\nAEGS never asserts that an action is compliant with any law. It records that specified controls ran and what they found. Whether that satisfies an obligation is a legal determination requiring a qualified person, a jurisdiction, and facts a technical layer does not hold. See AEGS-CROSSWALK-001.",
+  "type": "object",
+  "required": [
+    "aegsVersion",
+    "profile",
+    "controls"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "aegsVersion": {
+      "const": "0.1"
+    },
+    "profile": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The control profile applied, e.g. 'aegs-baseline', 'fatf-aligned'. A profile is a selection of AEGS controls, NOT a claim of regulatory conformity."
+    },
+    "profileVersion": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "controls": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "controlId",
+          "state"
+        ],
+        "properties": {
+          "controlId": {
+            "type": "string"
+          },
+          "state": {
+            "enum": [
+              "exercised",
+              "not-applicable",
+              "not-implemented",
+              "failed"
+            ],
+            "description": "`not-implemented` is an honest answer and must not be reported as `not-applicable`."
+          },
+          "evidence": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Pointer to the EvidenceRecord that substantiates this."
+          },
+          "detail": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    },
+    "assertedBy": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Who makes this assertion. Self-assertion is the default and must be visible as such."
+    },
+    "externallyReviewed": {
+      "type": [
+        "boolean",
+        "null"
+      ],
+      "description": "False or null means nobody outside the implementer has checked it."
+    }
+  }
+}

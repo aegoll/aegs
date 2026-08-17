@@ -1,0 +1,114 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aegs.dev/schemas/policy-0.1.json",
+  "title": "AEGS Policy",
+  "version": "0.1",
+  "description": "A versioned, declarative statement of what an implementation will permit. AEGS requires that policy be identifiable and content-addressed, not that it use any particular rule language: two implementations may express the same intent very differently, and a crosswalk between them is a policy question rather than a schema one. The content hash is what makes a silent rule edit detectable, which is the property an auditor actually needs.",
+  "type": "object",
+  "required": [
+    "aegsVersion",
+    "policyId",
+    "version",
+    "rules"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "aegsVersion": {
+      "const": "0.1"
+    },
+    "policyId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "version": {
+      "type": "string",
+      "minLength": 1,
+      "description": "A content hash is strongly preferred over a label. Labels can be reused across edited rules; hashes cannot."
+    },
+    "name": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "description": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "effectiveFrom": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "supersedes": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "The policy version this replaces. A policy history with the superseded versions removed is not a history."
+    },
+    "rules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "ruleId",
+          "verdict"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "ruleId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "priority": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "Lower is evaluated first where an implementation orders rules. Null where it does not."
+          },
+          "verdict": {
+            "enum": [
+              "APPROVE",
+              "REVIEW",
+              "ESCALATE",
+              "REJECT"
+            ]
+          },
+          "condition": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Human-readable. AEGS does not specify a rule language, so this is documentation rather than an executable form."
+          },
+          "reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "channel": {
+            "enum": [
+              "internal",
+              "external",
+              "any"
+            ]
+          }
+        }
+      }
+    },
+    "envelopes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Names of the BudgetEnvelopes this policy relies on."
+    }
+  }
+}

@@ -1,0 +1,123 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aegs.dev/schemas/authorization-0.1.json",
+  "title": "AEGS Authorization",
+  "version": "0.1",
+  "description": "Permission to act, granted before an action and bounded in scope and time. Distinct from an EconomicIntent: intent says what the agent was *sent to do*, authorization says what it is *permitted to do*. An agent can hold valid authorization and still act outside its intent, which is the gap a compromised or repurposed agent occupies.",
+  "type": "object",
+  "required": [
+    "aegsVersion",
+    "authorizationId",
+    "subject",
+    "grantedAt",
+    "status"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "aegsVersion": {
+      "const": "0.1"
+    },
+    "authorizationId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "subject": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The agentId this authorises."
+    },
+    "grantedBy": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Operator, parent agent, or delegation chain."
+    },
+    "grantedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "expiresAt": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time",
+      "description": "An expired authorization is not a weaker one. Implementations must refuse rather than degrade."
+    },
+    "status": {
+      "enum": [
+        "active",
+        "suspended",
+        "revoked",
+        "expired"
+      ]
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "channels": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "internal",
+              "external"
+            ]
+          }
+        },
+        "resources": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "counterparties": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "networks": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "maximumPerAction": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[0-9]+(\\.[0-9]+)?$"
+        },
+        "maximumTotal": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[0-9]+(\\.[0-9]+)?$"
+        },
+        "asset": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "delegatedFrom": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Delegated authority may only ever narrow. A delegation that widens scope is an escalation and must be refused."
+    },
+    "revocationReason": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  }
+}
