@@ -32,7 +32,8 @@
     "operation": {
       "enum": [
         "usd_to_atomic",
-        "atomic_to_usd"
+        "atomic_to_usd",
+        "evaluate_envelopes"
       ],
       "description": "A closed set. A vector naming an operation no implementation is required to expose cannot be run, and an unrunnable vector is worse than an absent one because it looks like coverage."
     },
@@ -51,7 +52,7 @@
       "properties": {
         "amount": {
           "type": "string",
-          "description": "A decimal amount, ALWAYS as a string, including for integers. A vector writing 2.5 as a JSON number would have lost precision before any implementation read it — which would make this suite unable to test the very thing ARITH-9 requires."
+          "description": "A decimal amount, ALWAYS as a string, including for integers. A vector writing 2.5 as a JSON number would have lost precision before any implementation read it \u2014 which would make this suite unable to test the very thing ARITH-9 requires."
         },
         "atomic": {
           "type": "integer",
@@ -62,6 +63,133 @@
           "minimum": 0,
           "maximum": 18,
           "description": "The asset's precision. A property of the asset, not of this specification."
+        },
+        "envelopes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "name",
+              "limit",
+              "used"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "limit": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "description": "Atomic units, or null for an ABSENT limit. Null and 0 are opposite instructions and MUST NOT be conflated -- see ENV-8."
+              },
+              "used": {
+                "type": "integer"
+              },
+              "window": {
+                "type": "string"
+              },
+              "cumulative": {
+                "type": "boolean",
+                "default": true,
+                "description": "False for a per-call ceiling: checked fresh against every action, nothing accumulates. A per-call ceiling MUST NOT report a consumed amount -- see ENV-4."
+              }
+            }
+          }
+        },
+        "counters": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "name",
+              "limit",
+              "used",
+              "kind"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "kind": {
+                "const": "count"
+              },
+              "limit": {
+                "type": "integer"
+              },
+              "used": {
+                "type": "integer"
+              },
+              "window": {
+                "type": "string"
+              }
+            },
+            "description": "A count envelope constrains occurrences, not amounts. Evaluated against the count already recorded, independent of the amount being decided -- see ENV-7."
+          }
+        },
+        "channel": {
+          "enum": [
+            "internal",
+            "external"
+          ],
+          "description": "Which channel this action belongs to."
+        },
+        "otherChannel": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "envelopes": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "limit",
+                  "used"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "limit": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ],
+                    "description": "Atomic units, or null for an ABSENT limit. Null and 0 are opposite instructions and MUST NOT be conflated -- see ENV-8."
+                  },
+                  "used": {
+                    "type": "integer"
+                  },
+                  "window": {
+                    "type": "string"
+                  },
+                  "cumulative": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "False for a per-call ceiling: checked fresh against every action, nothing accumulates. A per-call ceiling MUST NOT report a consumed amount -- see ENV-4."
+                  }
+                }
+              }
+            }
+          },
+          "description": "The opposite channel's state. Present only in vectors checking that channels never share an envelope -- ENV-9."
+        },
+        "repeat": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Perform the action this many times in succession. Used to show that a per-call ceiling does not accumulate."
+        },
+        "amountAtomic": {
+          "type": "integer",
+          "description": "An amount already in atomic units. An integer here is safe by construction -- that is what ARITH-1 buys. Distinct from `amount`, which is a decimal string because ARITH-9 requires one."
         }
       }
     },
@@ -69,33 +197,102 @@
       "oneOf": [
         {
           "type": "object",
-          "required": ["atomic"],
+          "required": [
+            "atomic"
+          ],
           "additionalProperties": false,
           "properties": {
-            "atomic": { "type": "integer" }
-          }
-        },
-        {
-          "type": "object",
-          "required": ["usd"],
-          "additionalProperties": false,
-          "properties": {
-            "usd": {
-              "type": "string",
-              "pattern": "^-?[0-9]+\\.[0-9]+$",
-              "description": "Plain decimal, never exponent notation. Some languages format 0.000001 as 1e-06 — the same number and a different hash."
+            "atomic": {
+              "type": "integer"
             }
           }
         },
         {
           "type": "object",
-          "required": ["refused", "reason"],
+          "required": [
+            "usd"
+          ],
           "additionalProperties": false,
           "properties": {
-            "refused": { "const": true },
+            "usd": {
+              "type": "string",
+              "pattern": "^-?[0-9]+\\.[0-9]+$",
+              "description": "Plain decimal, never exponent notation. Some languages format 0.000001 as 1e-06 \u2014 the same number and a different hash."
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "refused",
+            "reason"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "refused": {
+              "const": true
+            },
             "reason": {
-              "enum": ["negative", "overflow", "nonfinite", "unparseable"],
+              "enum": [
+                "negative",
+                "overflow",
+                "nonfinite",
+                "unparseable"
+              ],
               "description": "A CATEGORY, not a message. An implementation's wording is its own business; a vector checks that it refused for the right kind of reason. Matching exact strings would make this suite a test of one implementation's vocabulary, which is precisely what a conformance suite must not be."
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "ok"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "ok": {
+              "type": "boolean"
+            },
+            "breached": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "EVERY envelope the amount exceeds, not merely the first. Order is not significant; an implementation may report them in any order."
+            },
+            "binding": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "The envelope whose breach determined the refusal. MUST be null when nothing was breached -- see ENV-6."
+            },
+            "tightest": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "The envelope with the least headroom, whether or not anything was breached. A different question from `binding`, and most useful when nothing has been refused."
+            },
+            "headroom": {
+              "type": "object",
+              "additionalProperties": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "description": "Expected headroom per envelope name, floored at zero."
+            },
+            "used": {
+              "type": "object",
+              "additionalProperties": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "description": "Expected consumed amount per envelope name. Null asserts that no consumed amount is reported, which is what ENV-4 requires of a per-call ceiling."
             }
           }
         }
