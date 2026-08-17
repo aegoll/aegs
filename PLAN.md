@@ -74,8 +74,8 @@ implementation must *do*.
 - [x] B2.8 [`spec/05-arithmetic.md`](spec/05-arithmetic.md) — ARITH-1..9. Rounding pinned to half-up at [ARITH-3](spec/05-arithmetic.md) because every language's default differs and none is wrong in isolation; an implementation inheriting its own has made a decision it did not know it was making
 - [x] B2.9 [ARITH-4](spec/05-arithmetic.md) and [ARITH-5](spec/05-arithmetic.md), both naming the defect they come from. ARITH-4 also fixes the **ordering**: the sign is refused *before* any envelope evaluation, which is the part the original bug got wrong
 - [ ] B2.10 `spec/06-four-states.md` — **absent ≠ not-run ≠ unknown ≠ zero.** This came from a real bug: an unmeasured vendor history rendered as `0` made every advisor treat established counterparties as strangers
-- [ ] B2.11 `spec/07-evidence.md` — append-only, hash-chained, canonical serialisation. Key order, number formatting and separators **change the hash**, so all three are normative
-- [ ] B2.12 Document the truncation property honestly in the spec, not only in a security report: any prefix of a hash chain is a valid chain. Specify the anchor requirement for the level that claims tamper-evidence
+- [x] B2.11 [`spec/07-evidence.md`](spec/07-evidence.md) — EVID-1..9. Canonical serialisation is normative for *hashing* and explicitly not for *storage*, which [EVID-4](spec/07-evidence.md) states so implementers do not over-constrain themselves
+- [x] B2.12 [EVID-6](spec/07-evidence.md) requires the **disclosure** rather than the fix, and forbids claiming tamper-proof. Its vector is the only one in the suite that asserts a *weakness*: truncation must leave a chain verifying, because an implementation whose `verify()` failed there would be claiming what a bare chain cannot deliver. It also names the fix that looks like one and is not — a head file beside the journal, which whoever can truncate can also rewrite
 - [ ] B2.13 `spec/08-identity.md` — pseudonymous by default, selective disclosure as a first-class operation, delegation clamp (a sub-agent may never claim more than its parent). Note that **`spendingLimits` is the sharpest privacy field**: disclosing remaining budget to a seller invites it to charge exactly that
 - [x] B2.14a **Profile manifests written** — [`profiles/`](profiles/) with `aegs-1`, `aegs-2`, `none`, a [schema](schemas/profile-0.1.json), a [README](profiles/README.md) and [`tools/check_profiles.py`](tools/check_profiles.py). A profile is a conformance contract; a policy pack is what the rules are
 - [ ] B2.14 `spec/09-profiles.md` — the normative prose behind the manifests. The manifests are the machine-readable half; this is the half that explains the requirement levels and why a profile never changes a verdict
@@ -134,11 +134,11 @@ opportunity, detailed at [F5](../UPSTREAM-x402.md).
 - [x] B4.1 [`vectors/README.md`](vectors/README.md) and [`vectors/schema.json`](vectors/schema.json) — a vector without a clause fails validation. Amounts are **always strings**, because a vector writing `2.5` as a JSON number would have lost precision before any implementation read it, and could not test the very thing ARITH-9 requires
 - [x] B4.1a Every vector names its spec version and clause, required by the schema. This is upstream reviewer concern (3) answered by construction rather than by intention
 - [ ] B4.1b Answer concern (1): sequence and concurrency vectors need **executable semantics**, not just declared fields. Upstream's runner ignores `variants`, `n_requests` and `concurrent_requests` — which is exactly why structuring and velocity evasion cannot be expressed there. Our runner must execute them or the two open red-team findings have no test
-- [ ] B4.2 Expected output covers all four: verdict, **attributed control**, resulting envelope state, and the record hash
+- [x] B4.2 All four covered across the families — verdict and attributed control in `verdicts/`, envelope state in `envelopes/`, the record hash in `evidence/`
 - [x] B4.3 [`vectors/arithmetic/`](vectors/arithmetic/) — **33 vectors, all 9 clauses.** Mutation-checked rather than assumed to bite: a half-even implementation fails 1, the prototype's original no-sign-check fails 3
 - [x] B4.4 [`vectors/envelopes/`](vectors/envelopes/) — **27 vectors, all 9 clauses.** Headroom including over-committed, the exact-equality boundary, per-call versus cumulative, absent versus zero, count envelopes, and channel separation. Earned-authority multipliers deferred: they are a *policy* mechanism the spec does not require, so vectoring them would test this implementation rather than the standard
 - [x] B4.5 [`vectors/verdicts/`](vectors/verdicts/) — **32 vectors, all ten clauses.** Mutation-checked: equality-as-narrowing fails 1, first-narrowing-wins fails 3, swapped `REVIEW`/`ESCALATE` fails 6, allowing widening fails 14
-- [ ] B4.6 `vectors/evidence/` — record projection, canonical serialisation, chain hash continuation
+- [x] B4.6 [`vectors/evidence/`](vectors/evidence/) — **21 vectors.** Canonical form byte-for-byte, chain continuation, and four tamper scenarios: edit, middle-deletion, reorder (all detected) and truncation (deliberately not)
 - [ ] B4.7 Every one of the 7 CONF cases represented as vectors
 - [ ] B4.8 Every one of the 18 red-team attacks represented as vectors
 - [ ] B4.9 **The two known vulnerabilities are vectors on day one** — the negative amount and the 30-digit overflow — so no future implementation ships with the bugs the reference one already had. That alone justifies the vectors before anything else
@@ -283,6 +283,28 @@ reworded rather than marked.
 linter was right. The fix is that it now strips inline code, because a backticked keyword is
 being *named* rather than imposed — contorting the prose to dodge a regex would be the
 linter dictating the writing.
+
+### F-B8 · A clause found a real cryptographic weakness — 2026-08-17
+
+[EVID-5](spec/07-evidence.md) fixes a minimum retained hash length of 128 bits. Writing it
+meant checking what the reference implementation actually retained, and the answer was
+**64 bits** — a bare `hexdigest()[:16]` in *five* separate places that agreed with each other
+only by luck.
+
+Sixty-four bits is not a rounding error in a tamper-evidence claim. Altering an entry
+undetectably needs a **second preimage**, which is 2⁶⁴ work — reachable with commodity GPUs
+in months. At 128 bits it is 2¹²⁸, which nobody reaches. Collision resistance is the less
+interesting half: a birthday collision even at 64 bits needs around 4 × 10⁹ entries, and no
+realistic journal is that long. It is second-preimage resistance that the claim rests on, and
+truncation attacks it directly.
+
+**The clause was not lowered to fit the implementation.** The implementation was raised, which
+cost nothing because nothing published yet depends on the old hashes — and would have been a
+migration afterwards. That timing is the whole argument for writing this specification now
+rather than after publication.
+
+Worth noting how it was found: not by a security review, but by asking *what does this clause
+have to require* and then measuring. The number had been sitting in five files for months.
 
 ### F-B7 · A vector caught a bug in the specification — 2026-08-17
 
