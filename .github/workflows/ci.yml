@@ -59,6 +59,21 @@ jobs:
           PY
         continue-on-error: true  # remove once examples exist (PLAN B1.6)
 
+  profiles:
+    # A profile is a conformance contract. JSON Schema can say one is well-formed; it
+    # cannot say that a profile which `extends` another may only TIGHTEN it. Without
+    # that check aegs-2 could quietly relax something aegs-1 requires, and a higher
+    # level would be weaker than a lower one while both still validated.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install "jsonschema>=4.20"
+      - name: Profiles valid, and extends only tightens
+        run: python tools/check_profiles.py
+
   normative:
     # A MUST with no test is a wish. This job fails when a normative statement
     # has no cross-reference to a conformance case or a vector. (PLAN B2.19)

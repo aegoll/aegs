@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aegoll.github.io/aegs/schemas/profile-0.1.json",
+  "title": "AEGS Profile",
+  "version": "0.1",
+  "description": "A conformance contract: which controls must exist and what evidence must be emitted. A profile never changes a verdict — verdicts come from policy and from the engines. If selecting a profile could tighten or loosen what gets approved, two implementations at the same profile could disagree on outcomes while both claiming conformance, and the profile would have become a second, weaker policy language.",
+  "type": "object",
+  "required": [
+    "aegsVersion",
+    "profile",
+    "controls"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "aegsVersion": {
+      "const": "0.1"
+    },
+    "profile": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$",
+      "description": "The identifier a config names, e.g. `aegs-1`. Lowercase and hyphens so it is safe in a filename, a CLI argument and a JSON key alike."
+    },
+    "title": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "description": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "supersedes": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "The profile version this replaces. A profile history with the superseded versions removed is not a history."
+    },
+    "extends": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "A profile this one builds on. Requirements are inherited and may only be tightened — a profile that could relax an inherited requirement would let a higher level be weaker than a lower one."
+    },
+    "controls": {
+      "type": "array",
+      "minItems": 1,
+      "description": "One entry per control this profile has an opinion about. A control absent from the list is OPTIONAL by omission; listing it explicitly as OPTIONAL is clearer and preferred.",
+      "items": {
+        "type": "object",
+        "required": [
+          "control",
+          "requirement"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "control": {
+            "enum": [
+              "AgentIdentity",
+              "EconomicIntent",
+              "Policy",
+              "BudgetEnvelope",
+              "RiskAssessment",
+              "TrustAssessment",
+              "GovernanceDecision",
+              "EvidenceRecord",
+              "Authorization",
+              "ConformanceDeclaration",
+              "AMLAssessment",
+              "ComplianceAssessment",
+              "IncidentRecord"
+            ],
+            "description": "One of the thirteen AEGS controls. A closed set on purpose: a profile requiring a control the standard does not define is a profile nobody can score."
+          },
+          "requirement": {
+            "enum": [
+              "MUST_EXERCISE",
+              "MUST_RECORD",
+              "OPTIONAL"
+            ],
+            "description": "MUST_EXERCISE: runs on every in-scope decision, and the record shows it ran. MUST_RECORD: its output appears in the record when the control exists. OPTIONAL: may be absent entirely, and absence is not a finding."
+          },
+          "recordPath": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Where in a Decision Record the evidence for this control appears, as a slash-separated path — e.g. `assessments/trust`. This is what makes MUST_EXERCISE checkable rather than aspirational: a scorer reads the path and sees whether anything is there."
+          },
+          "note": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    },
+    "nonConformant": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Human-readable statements of what makes a decision non-conformant under this profile, beyond a missing required control. Documentation rather than an executable form — AEGS does not specify a rule language for profiles any more than it does for policy."
+    }
+  }
+}
