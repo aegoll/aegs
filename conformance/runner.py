@@ -45,13 +45,39 @@ from typing import Any, Protocol
 
 CASES_DIR = Path(__file__).resolve().parent / "cases"
 
-#: The schemas now live beside the suite in the standard's own repository, rather than
-#: in an `aegs/` sibling of a monorepo. Kept as a path rather than a URL on purpose:
-#: scoring must work offline, and a runner that fetches its schema over the network can
-#: be made to pass by a network.
-SCHEMA_PATH = (
-    Path(__file__).resolve().parents[1] / "schemas" / "decision-record-0.1.json"
-)
+#: The Decision Record schema. Kept as a path rather than a URL on purpose: scoring must work
+#: offline, and a runner that fetches its schema over the network **can be made to pass by a
+#: network** — an outage, a proxy, or a captive portal returning something plausible.
+#:
+#: Two candidate locations, in this order, and the order is the whole point:
+#:
+#: 1. `conformance/_schemas/` — inside the package, which is where an *installed*
+#:    `aegs-conformance` finds it;
+#: 2. `../schemas/` — the standard's own copy, which is where it lives when the suite is run
+#:    from a checkout of this repository.
+#:
+#: The second was the only one, as `parents[1] / "schemas"`. From a wheel that resolves to
+#: `site-packages/schemas/`, which does not exist — the same defect as `aegoll`'s F-A1, in the
+#: package whose whole job is to be installed by somebody else. Found before publishing rather
+#: than by a third party's traceback, and only because packaging it was attempted at all.
+def _find_schema() -> Path:
+    """Where the Decision Record schema is, or a message saying why there is none."""
+    here = Path(__file__).resolve().parent
+    for candidate in (
+        here / "_schemas" / "decision-record-0.1.json",
+        here.parents[0] / "schemas" / "decision-record-0.1.json",
+    ):
+        if candidate.is_file():
+            return candidate
+    raise FileNotFoundError(
+        "the Decision Record schema is not beside this suite. Looked in "
+        f"{here / '_schemas'} (an installed package) and "
+        f"{here.parents[0] / 'schemas'} (a source checkout). Without it, records cannot be "
+        "validated and a conformant verdict inside a malformed record would score as a pass."
+    )
+
+
+SCHEMA_PATH = _find_schema()
 
 
 class Outcome(str, Enum):

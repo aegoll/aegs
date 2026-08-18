@@ -1,0 +1,77 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+# `aegs` itself is taken on PyPI by an unrelated project (W0.1), which is harmless: the
+# specification is a document, not a package. What needs installing is the instrument.
+name = "aegs-conformance"
+version = "0.1.0"
+description = "AEGS-CONF: score an autonomous economic governance layer against AEGS 0.1"
+readme = "conformance/PYPI.md"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+authors = [{ name = "Jayzilva" }]
+keywords = [
+    "conformance", "governance", "agent", "aegs", "x402",
+    "autonomous", "payments", "audit", "standard",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Testing",
+    "Topic :: Office/Business :: Financial",
+]
+
+# `jsonschema` is a **hard** dependency here, unlike in `aegoll` where it is an extra.
+#
+# The difference matters. `aegoll` governs correctly without validating its own output, so
+# validation is optional there. This package's entire job is to judge whether somebody else's
+# records conform -- and a scorer that cannot validate a record would report a conformant
+# verdict inside a malformed one as a pass. There is no useful degraded mode.
+dependencies = [
+    "jsonschema>=4.20",
+]
+
+[project.optional-dependencies]
+# Scoring the reference implementation. Deliberately optional and deliberately *not* a
+# dependency: a conformance suite that installs the thing it tests is not a conformance suite.
+# `runner.py` imports no implementation at all, and a test asserts it.
+reference = ["aegoll>=0.1.1"]
+
+dev = ["pytest>=8.0", "build>=1.2", "twine>=5.0", "aegoll>=0.1.1"]
+
+[project.scripts]
+aegs-conformance = "conformance.run:main"
+
+[project.urls]
+Homepage = "https://github.com/aegoll/aegs"
+Specification = "https://github.com/aegoll/aegs/tree/main/spec"
+"Writing an adapter" = "https://github.com/aegoll/aegs/blob/main/conformance/adapters/README.md"
+"Reference implementation" = "https://github.com/aegoll/aegoll"
+
+# Only the suite is packaged. The specification prose, the test vectors and the profile
+# manifests stay in the repository: a reader of the standard wants a repository or a rendered
+# page, not a wheel, and shipping the prose here would imply the document is versioned by this
+# package's number rather than by AEGS 0.1.
+[tool.setuptools.packages.find]
+include = ["conformance*"]
+exclude = ["conformance.tests*"]
+
+# The cases and the schema are read at runtime. Without this stanza the wheel installs a suite
+# with no cases to run and no schema to validate against -- which would fail loudly on first
+# use, but only for whoever installed it.
+[tool.setuptools.package-data]
+conformance = [
+    "cases/*.json",
+    "_schemas/*.json",
+    "_schemas/PROVENANCE.txt",
+    "adapters/README.md",
+    "PYPI.md",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["conformance/tests"]

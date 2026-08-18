@@ -1,0 +1,32 @@
+Vendored AEGS schema -- package data, not a source of truth.
+
+The canonical copy is `schemas/decision-record-0.1.json` in this same repository, two
+directories up. This copy exists so that an **installed** `aegs-conformance` can validate
+Decision Records offline.
+
+Why a copy at all
+-----------------
+`runner.py` used to resolve the schema as `Path(__file__).parents[1] / "schemas" / ...`,
+which is correct from a checkout of this repository and resolves to `site-packages/schemas/`
+from a wheel -- a directory that does not exist. So the packaged suite could not have
+validated anything.
+
+That is the same defect as `aegoll`'s F-A1, in the one package whose entire purpose is to be
+installed by somebody else and pointed at their implementation. It was found by attempting
+the packaging, not by a third party's traceback, which is the argument for doing the
+packaging before claiming the suite is standalone.
+
+Kept as a file rather than fetched from https://aegoll.github.io/aegs/schemas/ on purpose:
+a runner that downloads its schema **can be made to pass by a network**. An outage, a proxy,
+or a captive portal returning something plausible would each turn a conformance run into a
+statement about connectivity.
+
+Drift
+-----
+`tests/test_packaging.py` fails if this copy differs from `schemas/decision-record-0.1.json`.
+Never edit this file: edit the canonical one and copy it down.
+
+Licence
+-------
+The AEGS specification and its schemas are CC-BY-4.0. Attribution: Jayzilva,
+https://github.com/aegoll/aegs
