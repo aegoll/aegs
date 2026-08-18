@@ -1,0 +1,59 @@
+{
+  "decisions": 3000,
+  "runs": 10,
+  "latencyP50Us": {
+    "runs": [
+      139,
+      147,
+      154,
+      166,
+      167,
+      169,
+      176,
+      204,
+      281,
+      330
+    ],
+    "median": 168.0,
+    "min": 139,
+    "max": 330,
+    "spread": 2.37
+  },
+  "latencyP99Us": {
+    "runs": [
+      272,
+      325,
+      332,
+      334,
+      381,
+      414,
+      439,
+      553,
+      827,
+      1218
+    ],
+    "median": 397.5,
+    "min": 272,
+    "max": 1218
+  },
+  "inferenceCostUsd": 0.0,
+  "modelInvocations": 0,
+  "measuredAgainst": {
+    "package": "aegoll",
+    "version": "0.1.1",
+    "source": "PyPI, installed into a clean virtual environment",
+    "note": "the published artifact, not a source checkout"
+  },
+  "comparedTo": {
+    "experiment": "EXP-005",
+    "latencyP50Us": 299,
+    "latencyP99Us": 733,
+    "runs": 5,
+    "note": "EXP-005 measured a source checkout of the pre-port `aegl` module with 10 engines. This measures published aegoll 0.1.1. The median p50 moved 299 -> 168 us, but see the spread: this experiment's own p50 ranges 139-330 us across ten runs, which overlaps EXP-005's single reported figure. The honest reading is that the two are not cleanly comparable, not that the layer got 1.8x faster."
+  },
+  "limitations": {
+    "environment": "one Windows 11 laptop, shared with other work during measurement",
+    "spread": "p50 varies 2.4x across ten identical runs. That variance is the finding: any single-run figure for this measurement, including EXP-003's 128 us and EXP-005's 299 us, carries no error bar and should not be quoted as precise.",
+    "notMeasured": "no model was invoked and nothing settled; this is the decision path alone"
+  }
+}

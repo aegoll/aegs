@@ -1,0 +1,37 @@
+{
+  "id": "EXP-007",
+  "title": "Deterministic governance overhead, published aegoll 0.1.1",
+  "question": "Does the governance overhead measured before the restructure still hold for the published package? EXP-003 and EXP-005 both measured a source checkout of the pre-port `aegl` module.",
+  "runs": 10,
+  "seed": null,
+  "costUsd": 0.0,
+  "supersedes": "EXP-005",
+  "recordedAt": "2026-08-18T14:03:12+00:00",
+  "python": "3.13.14",
+  "git": {
+    "commit": "24c12e0a43011e6789b1335fc97ea546aff9094c",
+    "branch": "main",
+    "dirty": true
+  },
+  "policies": {
+    "default": {
+      "hash": "a5a64aeb69dbc5f9206b31022064da26",
+      "rules": 12
+    },
+    "strict": {
+      "hash": "e9f36e640d040194af74ac9a5d1ebfbe",
+      "rules": 10
+    }
+  },
+  "packages": {
+    "aegoll": "0.1.1",
+    "x402": "2.19.0",
+    "langgraph": "1.2.9",
+    "langchain-core": "1.4.9",
+    "google-adk": "1.28.1",
+    "openai": "2.45.0",
+    "groq": "0.13.0",
+    "google-genai": "1.71.0",
+    "streamlit": "1.50.0"
+  }
+}
