@@ -152,21 +152,21 @@ opportunity, detailed at [F5](../UPSTREAM-x402.md).
 
 ---
 
-## B5 — AEGS-CONF, the conformance suite ⬜
+## B5 — AEGS-CONF, the conformance suite 🔨
 
 Ships as its own installable package. **A conformance suite that arrives as part of
 the thing it tests is not a conformance suite.**
 
 - [x] B5.1 Conformance suite ported faithfully — `08802e9` — then repointed at the ported package — `4641e15`
-- [ ] B5.2 Package as `aegs-conformance` on PyPI — installable by someone testing a layer that is not `aegoll`
+- [x] B5.2 **Packaged as `aegs-conformance`** — built, `twine check` clean, and verified from a fresh venv with **no `aegoll` installed**, scoring a foreign adapter 2/7. Not yet uploaded; the name is free. Packaging it found the schema-outside-the-package defect
 - [x] B5.3 The runner still imports no implementation, and the test that asserts it now bans both `aegoll` and `aegl`
-- [ ] B5.4 `conformance/adapters/README.md` — the adapter interface, written for a third party with no access to this codebase
+- [x] B5.4 [`conformance/adapters/README.md`](conformance/adapters/README.md) — two attributes, nothing to subclass, the three fields implementations usually get wrong, all six outcomes, and the conflict of interest stated plainly
 - [x] B5.5 Stub adapter kept and still scores **2/7** — 4 fail, 1 not-implemented. The suite bites
 - [ ] B5.6 Add cases past CONF-007 as the spec grows: profile enforcement, binding neutrality, four-state handling, delegation clamp, evidence-chain continuation
 - [ ] B5.7 Keep the **right-reason** rule: a verdict that is correct but attributed to the wrong control is recorded separately. It was right by accident, and the same case shaped differently would fail
 - [ ] B5.8 Machine-readable report with claimable levels, and a human-readable one that names *why* each case scored as it did
-- [ ] B5.9 `aegs-conformance --against <adapter>` runs standalone, exit code by level achieved
-- [ ] B5.10 **Score a second implementation.** The single largest open question in the project: the suite has never scored a system nobody here wrote. Options in preference order — a third party takes it up; a deliberately independent reimplementation written from the spec and vectors only; failing both, say so plainly and keep the question open
+- [x] B5.9 **`aegs-conformance --against module:Class`** runs standalone, exit code by level: 0 all passed, 1 AEGS-1 only, 2 nothing claimable, **3 could not run** — the last distinct so a setup failure is never published as a conformance result
+- [→] B5.10 **Score a second implementation — the dependency this plan stops at.** I cannot supply option two honestly: I wrote the implementation, the cases and the vectors, so a reimplementation by me inherits the same assumptions and would produce a number that looks independent and is not. The single largest open question in the project: the suite has never scored a system nobody here wrote. Options in preference order — a third party takes it up; a deliberately independent reimplementation written from the spec and vectors only; failing both, say so plainly and keep the question open
 
 **Exit:** `pip install aegs-conformance` scores anything that emits Decision Records, and has scored at least one implementation this project did not write.
 
