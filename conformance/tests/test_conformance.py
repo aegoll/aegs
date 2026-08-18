@@ -17,7 +17,7 @@ import pytest
 CONFORMANCE = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(CONFORMANCE))
 
-from adapters.aegoll_adapter import AegollAdapter  # noqa: E402
+from adapters.tesoro_adapter import TesoroAdapter  # noqa: E402
 from adapters.stub_adapter import StubAdapter  # noqa: E402
 from runner import Case, Outcome, report, run, score  # noqa: E402
 
@@ -66,24 +66,24 @@ def test_the_happy_path_case_exists(cases):
 # --- the reference implementation conforms --------------------------------
 
 
-def test_aegoll_passes_every_case(cases):
-    results = run(AegollAdapter(), cases)
+def test_tesoro_passes_every_case(cases):
+    results = run(TesoroAdapter(), cases)
     failures = [r for r in results if r.outcome is not Outcome.PASS]
     assert not failures, "AEGL no longer conforms:\n  " + "\n  ".join(
         f"{r.case.id} {r.outcome.value}: {r.detail}" for r in failures
     )
 
 
-def test_aegoll_can_claim_both_levels(cases):
-    data = report("aegoll", run(AegollAdapter(), cases))
+def test_tesoro_can_claim_both_levels(cases):
+    data = report("tesoro", run(TesoroAdapter(), cases))
     assert data["levels"]["AEGS-1"]["claimable"] is True
     assert data["levels"]["AEGS-2"]["claimable"] is True
 
 
-def test_every_aegoll_record_satisfies_the_schema(cases):
+def test_every_tesoro_record_satisfies_the_schema(cases):
     """The suite validates records before scoring them, so a conforming verdict
     carried by a malformed record is not a pass."""
-    results = run(AegollAdapter(), cases)
+    results = run(TesoroAdapter(), cases)
     assert not [r for r in results if r.outcome is Outcome.INVALID_RECORD]
 
 
@@ -207,7 +207,7 @@ def test_a_declaration_carries_what_it_must(cases):
     outcome can be checked, and disputed. Publishing failures is what makes publishing passes
     worth anything, so the per-case detail is the requirement rather than a nicety.
     """
-    data = report("aegoll", run(AegollAdapter(), cases))
+    data = report("tesoro", run(TesoroAdapter(), cases))
 
     assert data["aegsVersion"] == "0.1", "no specification version in the declaration"
     assert data["suite"], "no suite named"
@@ -240,12 +240,12 @@ def test_a_failing_declaration_is_still_a_declaration(cases):
 
 
 def test_the_runner_imports_no_implementation():
-    """If scoring needs anything from `aegoll`, the suite has stopped testing a
+    """If scoring needs anything from `tesoro`, the suite has stopped testing a
     standard and started testing us."""
     import ast
 
     source = CONFORMANCE / "runner.py"
-    banned = {"aegoll", "aegl", "agents", "x402_core"}
+    banned = {"tesoro", "aegl", "agents", "x402_core"}
     offenders = []
     for node in ast.walk(ast.parse(source.read_text(encoding="utf-8"))):
         names = []

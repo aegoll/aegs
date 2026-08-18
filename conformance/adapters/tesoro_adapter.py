@@ -1,4 +1,4 @@
-"""`aegoll` as an AEGS-CONF implementation under test.
+"""`tesoro` as an AEGS-CONF implementation under test.
 
 Everything implementation-specific lives here. The runner imports none of it — the
 whole point of the boundary is that a second implementation writes a file like this
@@ -11,7 +11,7 @@ prototype's version of this file did
 
 which quietly required the suite and the implementation to live in one monorepo. That
 is the opposite of what a conformance suite is for: it must be able to score something
-whose source you have never seen. `pip install aegoll`, or point `PYTHONPATH` at it,
+whose source you have never seen. `pip install tesoro`, or point `PYTHONPATH` at it,
 and this adapter finds it the same way any other consumer would.
 
 Each case gets a **fresh ephemeral store**, so cases cannot contaminate each other
@@ -39,20 +39,20 @@ BASE = datetime(2026, 8, 15, 12, 0, tzinfo=timezone.utc)
 #: "the implementation under test is not installed" is a setup problem and should read
 #: like one.
 NOT_INSTALLED = (
-    "aegoll is not importable. AEGS-CONF scores an *installed* implementation:\n"
-    "  pip install aegoll\n"
+    "tesoro is not importable. AEGS-CONF scores an *installed* implementation:\n"
+    "  pip install tesoro\n"
     "or set PYTHONPATH to its src/ directory. The suite itself needs none of it."
 )
 
 
 def implementation_available() -> bool:
-    return importlib.util.find_spec("aegoll") is not None
+    return importlib.util.find_spec("tesoro") is not None
 
 
-class AegollAdapter:
-    """Drives `aegoll` through one conformance case and returns a Decision Record."""
+class TesoroAdapter:
+    """Drives `tesoro` through one conformance case and returns a Decision Record."""
 
-    name = "aegoll"
+    name = "tesoro"
 
     def __init__(self, agent_id: str = "conformance-agent") -> None:
         self.agent_id = agent_id
@@ -63,11 +63,11 @@ class AegollAdapter:
         if not implementation_available():
             raise RuntimeError(NOT_INSTALLED)
 
-        from aegoll import record as record_mod
-        from aegoll.clock import FixedClock
-        from aegoll.config import available_bundles, load_bundle
-        from aegoll.domain import Channel, Purpose, Vendor, Verdict, usd_to_atomic
-        from aegoll.runtime import Aegoll, Paths
+        from tesoro import record as record_mod
+        from tesoro.clock import FixedClock
+        from tesoro.config import available_bundles, load_bundle
+        from tesoro.domain import Channel, Purpose, Vendor, Verdict, usd_to_atomic
+        from tesoro.runtime import Tesoro, Paths
 
         bundle = load_bundle()
         wanted = case.setup.get("policy")
@@ -77,7 +77,7 @@ class AegollAdapter:
                     bundle = load_bundle(path)
                     break
 
-        aegoll = Aegoll(
+        tesoro = Tesoro(
             bundle=bundle,
             paths=Paths.ephemeral(tempfile.mkdtemp()),
             clock=FixedClock(BASE),
@@ -94,7 +94,7 @@ class AegollAdapter:
 
             # --- setup: history the engines will read ----------------------
             for i, row in enumerate(case.setup.get("history") or []):
-                aegoll.store.record(
+                tesoro.store.record(
                     tx_id=f"{case.id}-hist-{i}",
                     at=BASE - timedelta(seconds=row.get("secondsAgo", 0)),
                     agent_id=self.agent_id,
@@ -111,7 +111,7 @@ class AegollAdapter:
             spec = case.setup.get("intent")
             if spec:
                 expired_hours = spec.get("expiredHoursAgo")
-                aegoll.intents.declare(
+                tesoro.intents.declare(
                     agent_id=self.agent_id,
                     purpose=spec["purpose"],
                     maximum_usd=spec["maximumAmount"],
@@ -127,20 +127,20 @@ class AegollAdapter:
             # --- setup: a registered identity ------------------------------
             ident = case.setup.get("identity")
             if ident:
-                aegoll.identities.register(
+                tesoro.identities.register(
                     agent_id=self.agent_id,
                     purpose=ident.get("purpose", "conformance"),
                     per_action_usd=ident.get("perAction"),
                     now=BASE,
                 )
                 if ident.get("status") and ident["status"] != "active":
-                    aegoll.identities.set_status(self.agent_id, ident["status"])
+                    tesoro.identities.set_status(self.agent_id, ident["status"])
 
             # --- the action -------------------------------------------------
             channel = (
                 Channel.INTERNAL if action.get("channel") == "internal" else Channel.EXTERNAL
             )
-            request = aegoll.build_request(
+            request = tesoro.build_request(
                 resource=action["resource"],
                 amount_usd=action["amount"],
                 vendor=vendor,
@@ -149,11 +149,11 @@ class AegollAdapter:
                 ),
                 channel=channel,
             )
-            aegoll.authorize(request)
+            tesoro.authorize(request)
 
-            entries = [e for e in aegoll.audit.entries() if e.payload.get("decision")]
+            entries = [e for e in tesoro.audit.entries() if e.payload.get("decision")]
             if not entries:
                 return None
             return record_mod.from_audit_entry(entries[-1])
         finally:
-            aegoll.close()
+            tesoro.close()

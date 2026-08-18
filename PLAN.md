@@ -73,10 +73,10 @@ implementation must *do*.
 - [x] B2.7 [VERD-3](spec/04-verdicts.md) and [VERD-4](spec/04-verdicts.md) state the asymmetry as a pair, with `order-forward` / `order-reversed` vectors that hold the verdict constant while attribution changes
 - [x] B2.8 [`spec/05-arithmetic.md`](spec/05-arithmetic.md) — ARITH-1..9. Rounding pinned to half-up at [ARITH-3](spec/05-arithmetic.md) because every language's default differs and none is wrong in isolation; an implementation inheriting its own has made a decision it did not know it was making
 - [x] B2.9 [ARITH-4](spec/05-arithmetic.md) and [ARITH-5](spec/05-arithmetic.md), both naming the defect they come from. ARITH-4 also fixes the **ordering**: the sign is refused *before* any envelope evaluation, which is the part the original bug got wrong
-- [x] B2.10 [`spec/06-four-states.md`](spec/06-four-states.md) — STATE-1..4. **absent ≠ not-run ≠ unknown ≠ zero**, from a real bug: an unmeasured vendor history rendered as `0` made every advisor treat established counterparties as strangers. Writing it found the rule was a *boolean* in `aegoll` — see [F-A10](../aegoll/PLAN.md)
+- [x] B2.10 [`spec/06-four-states.md`](spec/06-four-states.md) — STATE-1..4. **absent ≠ not-run ≠ unknown ≠ zero**, from a real bug: an unmeasured vendor history rendered as `0` made every advisor treat established counterparties as strangers. Writing it found the rule was a *boolean* in `tesoro` — see [F-A10](../tesoro/PLAN.md)
 - [x] B2.11 [`spec/07-evidence.md`](spec/07-evidence.md) — EVID-1..9. Canonical serialisation is normative for *hashing* and explicitly not for *storage*, which [EVID-4](spec/07-evidence.md) states so implementers do not over-constrain themselves
 - [x] B2.12 [EVID-6](spec/07-evidence.md) requires the **disclosure** rather than the fix, and forbids claiming tamper-proof. Its vector is the only one in the suite that asserts a *weakness*: truncation must leave a chain verifying, because an implementation whose `verify()` failed there would be claiming what a bare chain cannot deliver. It also names the fix that looks like one and is not — a head file beside the journal, which whoever can truncate can also rewrite
-- [x] B2.13 [`spec/08-identity.md`](spec/08-identity.md) — ID-1..5. **`spendingLimits` is the sharpest privacy field**: disclosing remaining budget to a seller invites it to charge exactly that. [ID-4](spec/08-identity.md) says *clamp to the narrower* rather than *refuse the wider*, and the difference was a live escalation in the reference implementation — see [F-A9](../aegoll/PLAN.md)
+- [x] B2.13 [`spec/08-identity.md`](spec/08-identity.md) — ID-1..5. **`spendingLimits` is the sharpest privacy field**: disclosing remaining budget to a seller invites it to charge exactly that. [ID-4](spec/08-identity.md) says *clamp to the narrower* rather than *refuse the wider*, and the difference was a live escalation in the reference implementation — see [F-A9](../tesoro/PLAN.md)
 - [x] B2.14a **Profile manifests written** — [`profiles/`](profiles/) with `aegs-1`, `aegs-2`, `none`, a [schema](schemas/profile-0.1.json), a [README](profiles/README.md) and [`tools/check_profiles.py`](tools/check_profiles.py). A profile is a conformance contract; a policy pack is what the rules are
 - [x] B2.14 [`spec/09-profiles.md`](spec/09-profiles.md) — PROF-1..6. The half that explains the requirement levels and why a profile never changes a verdict. [PROF-5](spec/09-profiles.md) requires `none` to list every control *explicitly* rather than be empty, which is what makes the manifest an implementation's own answer to "which controls are defined"
 - [x] B2.15 [`spec/10-decision-path.md`](spec/10-decision-path.md) — PATH-1..5. Model exclusion, and [PATH-4](spec/10-decision-path.md): **the clock is an input**, because a decision path that reads the wall clock is not replayable and its evidence cannot be re-derived
@@ -87,7 +87,7 @@ implementation must *do*.
 - [x] B2.18 Every normative clause cross-referenced. **56 clauses, 151 vectors**, no orphans in either direction, in either repo — the linter fails a MUST with no test, and `check_vectors.py` fails a vector citing a clause that does not exist
 - [x] B2.19 [`tools/lint_normative.py`](tools/lint_normative.py), a **real** CI gate rather than `continue-on-error`. It caught two things on its first run, and neither was fixed by exempting anything — see Findings
 
-**Exit:** ✅ twelve sections, 56 clauses, 151 vectors, every MUST with a test that *runs*. Writing it found **five defects in `aegoll`** and **one in the specification itself**, which is the argument for writing prose and vectors together rather than prose first.
+**Exit:** ✅ twelve sections, 56 clauses, 151 vectors, every MUST with a test that *runs*. Writing it found **five defects in `tesoro`** and **one in the specification itself**, which is the argument for writing prose and vectors together rather than prose first.
 
 ---
 
@@ -123,7 +123,7 @@ before starting this section. Findings F1, F7 and F8 there change what this bind
 ## B4 — Language-neutral test vectors ✅
 
 Useful immediately, and the bridge to any second implementation. Consumed by
-[`../aegoll/PLAN.md`](../aegoll/PLAN.md) A8.
+[`../tesoro/PLAN.md`](../tesoro/PLAN.md) A8.
 
 **Align to upstream's format, do not invent a second one.** [PR #2776](https://github.com/x402-foundation/x402/pull/2776)
 upstream ships 52 core conformance vectors with a `schema.json` and a dependency-free
@@ -141,12 +141,12 @@ opportunity, detailed at [F5](../UPSTREAM-x402.md).
 - [x] B4.6 [`vectors/evidence/`](vectors/evidence/) — **21 vectors.** Canonical form byte-for-byte, chain continuation, and four tamper scenarios: edit, middle-deletion, reorder (all detected) and truncation (deliberately not)
 - [→] B4.7 Every one of the 7 CONF cases represented as vectors — **moved to [W6](../PLAN.md)**, where the conformance suite is packaged standalone. The seven are *cases* today and already run; turning each into a vector is a second encoding of the same check, worth doing when the suite ships on its own and worth nothing before
 - [→] B4.8 Every one of the 18 red-team attacks represented as vectors — **moved to [W7](../PLAN.md)**, the red-team wave. Two of the eighteen (the negative amount and the overflow) are already vectors by [B4.9](#b4--language-neutral-test-vectors-)
-- [x] B4.9 **The two known vulnerabilities are vectors on day one** — the negative amount and the 30-digit overflow — so no future implementation ships with the bugs the reference one already had. Asserted **by name** in `aegoll` by `test_the_two_known_vulnerabilities_are_covered` — "we have arithmetic vectors" is a different claim from "the minus-sign bug is covered"
+- [x] B4.9 **The two known vulnerabilities are vectors on day one** — the negative amount and the 30-digit overflow — so no future implementation ships with the bugs the reference one already had. Asserted **by name** in `tesoro` by `test_the_two_known_vulnerabilities_are_covered` — "we have arithmetic vectors" is a different claim from "the minus-sign bug is covered"
 - [x] B4.10 [`tools/check_vectors.py`](tools/check_vectors.py) reports coverage per clause and fails a vector citing a clause that does not exist — coverage checked in **both** directions
 - [x] B4.11 [`vectors/fourstates/`](vectors/fourstates/) + [`vectors/controls/`](vectors/controls/) — **18 vectors.** The pair that matters is `unknown-when-measured-without-a-value` against `zero-is-a-measurement`: same shape, one null and one `"0"`, and an implementation that conflates them fails exactly one
 - [x] B4.12 [`vectors/identity/`](vectors/identity/) — **7 vectors.** `disclose-vendor-hides-spending-limits` asserts **absence**, which is the load-bearing half: a vector listing only what a vendor may see would pass an implementation that discloses everything
 - [x] B4.13 [`vectors/profiles/`](vectors/profiles/) — **10 vectors**, run against the manifests the package actually ships rather than a copy in a test, so a manifest that lost a control fails
-- [x] B4.14 **All 151 execute.** The 38 added with sections 02, 06, 08, 09 and 10 initially had no runner arm in `aegoll` — the linter counted their clauses as tested while nothing ran. Caught before the commit and closed with five arms; see [F-A11](../aegoll/PLAN.md), which is the general problem: **a coverage count is not a coverage claim unless something executes**
+- [x] B4.14 **All 151 execute.** The 38 added with sections 02, 06, 08, 09 and 10 initially had no runner arm in `tesoro` — the linter counted their clauses as tested while nothing ran. Caught before the commit and closed with five arms; see [F-A11](../tesoro/PLAN.md), which is the general problem: **a coverage count is not a coverage claim unless something executes**
 
 **Exit:** ✅ **nine families, 151 vectors, 56 clauses**, the reference implementation at 100% with every vector *executing*, coverage reported in both directions.
 
@@ -158,8 +158,8 @@ Ships as its own installable package. **A conformance suite that arrives as part
 the thing it tests is not a conformance suite.**
 
 - [x] B5.1 Conformance suite ported faithfully — `08802e9` — then repointed at the ported package — `4641e15`
-- [x] B5.2 **Packaged as `aegs-conformance`** — built, `twine check` clean, and verified from a fresh venv with **no `aegoll` installed**, scoring a foreign adapter 2/7. Not yet uploaded; the name is free. Packaging it found the schema-outside-the-package defect
-- [x] B5.3 The runner still imports no implementation, and the test that asserts it now bans both `aegoll` and `aegl`
+- [x] B5.2 **Packaged as `aegs-conformance`** — built, `twine check` clean, and verified from a fresh venv with **no `tesoro` installed**, scoring a foreign adapter 2/7. Not yet uploaded; the name is free. Packaging it found the schema-outside-the-package defect
+- [x] B5.3 The runner still imports no implementation, and the test that asserts it now bans both `tesoro` and `aegl`
 - [x] B5.4 [`conformance/adapters/README.md`](conformance/adapters/README.md) — two attributes, nothing to subclass, the three fields implementations usually get wrong, all six outcomes, and the conflict of interest stated plainly
 - [x] B5.5 Stub adapter kept and still scores **2/7** — 4 fail, 1 not-implemented. The suite bites
 - [ ] B5.6 Add cases past CONF-007 as the spec grows: profile enforcement, binding neutrality, four-state handling, delegation clamp, evidence-chain continuation
@@ -185,7 +185,7 @@ labelled data.
 - [ ] B6.4 **FATF Travel Rule — the one real gap the crosswalk found.** AEGS carries no originator or beneficiary data, which matters for any stablecoin deployment between regulated parties. Either specify the fields or formally declare it out of scope in writing
 - [ ] B6.4a Independently confirmed upstream: [PR #2853](https://github.com/x402-foundation/x402/pull/2853) adds a compliance-fields extension covering **EU VAT (Arts. 220a/226b) and EN 16931 invoicing** and explicitly **does not reference FATF, travel rules, or AML.** Nobody upstream is covering it either — so this is a real open gap in the ecosystem, not just in AEGS. Say so, with the citation
 - [ ] B6.4b Borrow their *verifier disqualification* discipline — constraints stated as MUST NOTs on the evaluator rather than as new required fields (independence, completeness/existence, economic-phase separation, scope-within-commitments). It is a better shape than adding fields, and sequential numbering giving ordering evidence only is the same honest limit as our chain-truncation caveat
-- [ ] B6.5 Structuring and layering as *specified controls*, matching the behavioural engine in [A11](../aegoll/PLAN.md). The reference implementation moved 40 × $0.001 with nothing refused
+- [ ] B6.5 Structuring and layering as *specified controls*, matching the behavioural engine in [A11](../tesoro/PLAN.md). The reference implementation moved 40 × $0.001 with nothing refused
 - [ ] B6.6 `IncidentRecord` given required semantics — what raises one, who sees it, what closes it
 - [ ] B6.7 `ComplianceAssessment` tied to the active profile, so "controls exercised" is a checkable claim
 - [ ] B6.8 State the honest limit in the spec itself: **effectiveness cannot be demonstrated without labelled financial-crime data this project does not have.** The interface is buildable; the effectiveness claim is not
@@ -338,7 +338,7 @@ described the code and found nothing.
 
 ### F-B6 · The spec found a bug in the implementation, twice — 2026-08-17
 
-Both slices so far have found a real defect in `aegoll` while the clause was being written,
+Both slices so far have found a real defect in `tesoro` while the clause was being written,
 rather than the other way round. That is the argument for writing prose and vectors
 together, and it is worth stating because the reverse was the expectation.
 

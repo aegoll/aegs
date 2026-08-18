@@ -10,7 +10,7 @@ Cases, adapters, and the AEGS Decision Record schema. **Nothing else.** It impor
 no engine, no governance layer, no AEGL. An adapter hands it a Decision Record; it
 scores that record against the case's expectation.
 
-If scoring ever needs something from `aegoll`, the boundary has moved to the wrong
+If scoring ever needs something from `tesoro`, the boundary has moved to the wrong
 place and the suite has stopped being a conformance test of a *standard*.
 
 ## The rule that makes a pass mean something
@@ -57,7 +57,7 @@ CASES_DIR = Path(__file__).resolve().parent / "cases"
 #:    from a checkout of this repository.
 #:
 #: The second was the only one, as `parents[1] / "schemas"`. From a wheel that resolves to
-#: `site-packages/schemas/`, which does not exist — the same defect as `aegoll`'s F-A1, in the
+#: `site-packages/schemas/`, which does not exist — the same defect as `tesoro`'s F-A1, in the
 #: package whose whole job is to be installed by somebody else. Found before publishing rather
 #: than by a third party's traceback, and only because packaging it was attempted at all.
 def _find_schema() -> Path:

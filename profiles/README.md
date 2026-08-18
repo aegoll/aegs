@@ -82,6 +82,6 @@ meant. Rules:
 ## Downstream copies
 
 Implementations may vendor these files so they can report conformance offline.
-`aegoll` does, under `src/aegoll/_profiles/`, pinned to a commit here and checked for
+`tesoro` does, under `src/tesoro/_profiles/`, pinned to a commit here and checked for
 drift. **This directory is canonical**; a profile change is made here and copied down
 afterwards, never the reverse.

@@ -70,7 +70,7 @@ plausible-looking `0/7` report about a system nobody ran.
 
 ## What this package does *not* install
 
-It does not depend on `aegoll`, the reference implementation. Scoring it is an extra
+It does not depend on `tesoro`, the reference implementation. Scoring it is an extra
 (`pip install aegs-conformance[reference]`), because a conformance suite that arrives with the
 thing it tests is not a conformance suite — and `runner.py` imports no implementation at all,
 which a test asserts by walking its AST.
@@ -95,6 +95,6 @@ and a case is wrong, that is the most useful bug report this project can receive
   clauses, every MUST with a test
 - [Test vectors](https://github.com/aegoll/aegs/tree/main/vectors) — 151 language-neutral vectors
   across nine families
-- [Reference implementation](https://pypi.org/project/aegoll/) — `pip install aegoll`
+- [Reference implementation](https://pypi.org/project/tesoro/) — `pip install tesoro`
 
 Apache-2.0 for the suite; the specification text is CC-BY-4.0.

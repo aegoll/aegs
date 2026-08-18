@@ -33,7 +33,7 @@ contradicted.
 
 ## EXP-007, and why it matters beyond its own number
 
-It re-measured the deterministic governance overhead against **published `aegoll` 0.1.1** rather
+It re-measured the deterministic governance overhead against **published `tesoro` 0.1.1** rather
 than a source checkout, and found the layer holds up: a couple of hundred microseconds, zero
 tokens, across 30,000 decisions.
 

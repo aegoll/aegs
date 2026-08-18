@@ -106,6 +106,6 @@ See [`LICENSES.md`](LICENSES.md).
 
 ## Related
 
-[`aegoll`](https://github.com/aegoll/aegoll) — the reference implementation ·
-[`aegoll-integrations`](https://github.com/aegoll/aegoll-integrations) — examples ·
+[`tesoro`](https://github.com/aegoll/tesoro) — the reference implementation ·
+[`tesoro-integrations`](https://github.com/aegoll/tesoro-integrations) — examples ·
 [`Jayzilva/x402`](https://github.com/Jayzilva/x402) — the read-only proof-of-concept

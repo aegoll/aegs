@@ -73,7 +73,7 @@ def git_state() -> dict[str, Any]:
 def policy_state() -> dict[str, Any]:
     """Policy bundle names and hashes, so a rule change is visible in the record.
 
-    Reads the **installed** `aegoll`. The prototype's version put
+    Reads the **installed** `tesoro`. The prototype's version put
     `REPO_ROOT / "aegl"` on `sys.path`, which is the single-repository layout and resolves to
     nothing here — and then caught the resulting `ImportError` and returned
     `{"error": "ModuleNotFoundError: ..."}`. So a record could be sealed with no policy hash at
@@ -83,7 +83,7 @@ def policy_state() -> dict[str, Any]:
     provenance is a stack trace is not situated, it just looks like it is. So this **raises**.
     An experiment that cannot say which rules it ran against should not be recordable.
     """
-    from aegoll.config import available_bundles, load_bundle  # noqa: PLC0415
+    from tesoro.config import available_bundles, load_bundle  # noqa: PLC0415
 
     bundles = {
         b.name: {"hash": b.hash, "rules": len(b.rules)}
@@ -101,7 +101,7 @@ def package_versions(names: tuple[str, ...] = ()) -> dict[str, str]:
     from importlib.metadata import PackageNotFoundError, version  # noqa: PLC0415
 
     wanted = names or (
-        "aegoll", "x402", "claude-agent-sdk", "langgraph", "langchain-core",
+        "tesoro", "x402", "claude-agent-sdk", "langgraph", "langchain-core",
         "google-adk", "anthropic", "openai", "groq", "google-genai", "streamlit",
     )
     out: dict[str, str] = {}

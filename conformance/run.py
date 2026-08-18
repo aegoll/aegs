@@ -1,9 +1,9 @@
 """Run AEGS-CONF against an implementation.
 
-    aegs-conformance --adapter aegoll
+    aegs-conformance --adapter tesoro
     aegs-conformance --adapter stub                        # proves the suite discriminates
     aegs-conformance --against my_layer.conformance:Adapter  # your own, no suite changes
-    aegs-conformance --adapter aegoll --json --out report.json
+    aegs-conformance --adapter tesoro --json --out report.json
 
 **`--against` is the point of this file.** A conformance suite that only scores adapters listed
 inside itself is not an instrument, it is a self-assessment: anyone outside would have to fork the
@@ -34,13 +34,13 @@ if str(HERE) not in sys.path:
 
 from runner import Case, format_report, report, run  # noqa: E402
 
-#: Adapters that ship with the suite. Two, and both are here for a reason: `aegoll` is the
+#: Adapters that ship with the suite. Two, and both are here for a reason: `tesoro` is the
 #: reference implementation, and `stub` exists to fail — a suite that has never scored anything
 #: below full marks has not been shown to discriminate.
 #:
 #: This dict is a convenience, not the extension mechanism. Use `--against` for anything else.
 ADAPTERS = {
-    "aegoll": ("adapters.aegoll_adapter", "AegollAdapter"),
+    "tesoro": ("adapters.tesoro_adapter", "TesoroAdapter"),
     "stub": ("adapters.stub_adapter", "StubAdapter"),
 }
 
@@ -171,7 +171,7 @@ def main(argv: list[str] | None = None) -> int:
         if args.against:
             adapter = load_external(args.against)
         else:
-            adapter = load_adapter(args.adapter or "aegoll")
+            adapter = load_adapter(args.adapter or "tesoro")
     except SystemExit as exc:
         # Re-raised as code 3 rather than argparse's 2, so "could not run" is never confused
         # with "nothing claimable". A CI job that treats a setup failure as a conformance

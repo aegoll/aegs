@@ -6,7 +6,7 @@ never seen. It was not true. `runner.py` resolved the Decision Record schema as
 `site-packages/schemas/` from a wheel — a directory that does not exist. So the packaged suite
 could not have validated anything.
 
-The same defect as `aegoll`'s F-A1, in the one package whose entire purpose is to be installed by
+The same defect as `tesoro`'s F-A1, in the one package whose entire purpose is to be installed by
 somebody else. Found by attempting the packaging rather than by a third party's traceback, which is
 the argument for packaging before claiming a suite is standalone.
 
@@ -95,22 +95,22 @@ def test_every_case_is_declared_as_package_data():
 def test_the_suite_does_not_depend_on_the_implementation_it_tests():
     """A conformance suite that arrives with the thing it tests is not a conformance suite.
 
-    `aegoll` is an *extra*, never a dependency. Someone scoring their own layer must not be made
+    `tesoro` is an *extra*, never a dependency. Someone scoring their own layer must not be made
     to install a competing one to do it.
     """
     deps = project()["project"]["dependencies"]
-    assert not [d for d in deps if "aegoll" in d.lower()], (
+    assert not [d for d in deps if "tesoro" in d.lower()], (
         f"the suite depends on the reference implementation: {deps}"
     )
     extras = project()["project"]["optional-dependencies"]
-    assert any("aegoll" in d for d in extras.get("reference", [])), (
+    assert any("tesoro" in d for d in extras.get("reference", [])), (
         "scoring the reference implementation should still be possible via "
         "`pip install aegs-conformance[reference]`"
     )
 
 
 def test_jsonschema_is_a_hard_dependency_here():
-    """Unlike in `aegoll`, where validation is optional because the layer governs correctly
+    """Unlike in `tesoro`, where validation is optional because the layer governs correctly
     without it.
 
     This package's whole job is to judge whether somebody else's records conform. A scorer that

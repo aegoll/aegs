@@ -11,7 +11,7 @@ which is correct from a checkout of this repository and resolves to `site-packag
 from a wheel -- a directory that does not exist. So the packaged suite could not have
 validated anything.
 
-That is the same defect as `aegoll`'s F-A1, in the one package whose entire purpose is to be
+That is the same defect as `tesoro`'s F-A1, in the one package whose entire purpose is to be
 installed by somebody else and pointed at their implementation. It was found by attempting
 the packaging, not by a third party's traceback, which is the argument for doing the
 packaging before claiming the suite is standalone.
