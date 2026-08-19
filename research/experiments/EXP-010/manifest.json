@@ -1,0 +1,71 @@
+{
+  "id": "EXP-010",
+  "title": "Red-team score after count envelopes over a long window",
+  "question": "Does a count envelope over a long window close paced evasion, does it close structuring, and is the refusal attributed to the control that was added rather than to a threshold that moved?",
+  "supersedes": null,
+  "pairedWith": "EXP-009",
+  "pairedWithNote": "The 'after' half of A11.9. EXP-009 is the 'before'; same suite, same clock.",
+  "runs": 1,
+  "runsRationale": "Deterministic suite. Repetition measures nothing.",
+  "seed": null,
+  "costUsd": 0.0,
+  "recordedAt": "2026-08-18T21:10:00+00:00",
+  "python": "3.13.14",
+  "clock": "2026-08-15T12:00:00+00:00",
+  "git": {
+    "repo": "tesoro",
+    "commit": "a83159f9704b65cb306396bd82d0f198df5a40aa",
+    "branch": "main",
+    "dirty": true
+  },
+  "policies": {
+    "default": {
+      "hash": "46abca353ed56adc703aa555ca1e12d6",
+      "rules": 12
+    },
+    "strict": {
+      "hash": "e9f36e640d040194af74ac9a5d1ebfbe",
+      "rules": 10
+    }
+  },
+  "policiesNote": "The default pack CHANGED: it declares actions_per_day and actions_per_month. EXP-007/008/009 cite a5a64aeb69dbc5f9206b31022064da26 and measured the old pack. strict declares neither key and is unchanged.",
+  "packages": {
+    "tesoro": "0.1.1+working-tree",
+    "source": "editable install of the working tree"
+  },
+  "counts": {
+    "DEFENDED": 15,
+    "DEFENDED_BY_ACCIDENT": 1,
+    "UNDEFENDED": 2,
+    "ERROR": 0
+  },
+  "undefended": [
+    "RT-ECON-001",
+    "RT-EVID-002"
+  ],
+  "byAccident": [
+    "RT-ECON-003"
+  ],
+  "surprises": 0,
+  "change": {
+    "kind": "configuration and two snapshot fields",
+    "newControlType": false,
+    "newEngine": false,
+    "newClause": false,
+    "clause": "AEGS-0.1-ENV-7",
+    "keys": {
+      "actions_per_day": 500,
+      "actions_per_month": 10000
+    },
+    "absentIsAbsent": "an omitted key yields None and appends no envelope, per ENV-8"
+  },
+  "attribution": {
+    "RT-ECON-004": {
+      "outcome": "DEFENDED",
+      "control": "treasury",
+      "envelope": "actions_per_day",
+      "valueEnvelopesUnchanged": true,
+      "rateLimitStillBindsAtHighRate": "velocity_1h at action 100"
+    }
+  }
+}

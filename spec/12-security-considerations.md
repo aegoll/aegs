@@ -129,25 +129,46 @@ Addressed by [PATH-3](10-decision-path.md), which requires *not-run* and forbids
 
 ## AEGS-0.1-SEC-6 · Behavioural attacks — open
 
-Two attacks that no requirement in this specification defends against, and that no single limit
-can:
+Two attacks that no **requirement** in this specification defends against. One of them is
+defensible within 0.1 and the other is not, and the difference matters to a reader deciding what
+conformance buys them.
 
 **Structuring.** Forty payments of one cent, paced five minutes apart, breach no value envelope
-and no velocity limit. In the reference implementation this moved money with **nothing refused**.
+and no velocity limit. In the reference implementation this moved money with **nothing refused**,
+and it still does. A count envelope bounds how many such payments a window permits; it does not
+refuse forty in an afternoon, because forty trivial purchases is also what a legitimate agent
+does. Refusing *that* needs a control examining the shape of a sequence, and no amount of
+tightening an envelope produces one.
 
-**Velocity evasion.** Pacing exactly at a rate limit is unbounded in total. A limit of ten per
-minute permits fourteen thousand a day.
+**Paced evasion.** Pacing *under* a rate limit is unbounded in total. Ninety-seven actions an
+hour against a ceiling of one hundred is compliant indefinitely and produces 2,328 a day.
 
-> Both need a control that examines the **shape of a sequence** rather than the size of any
-> action, and no amount of tightening an envelope produces one. Tightening makes legitimate use
-> harder without addressing either — which is worth saying because tightening is what an operator
-> will reach for.
+**Paced evasion is defensible under [ENV-7](03-envelopes.md) and was not being defended.** A
+count envelope over a day or a month bounds the total directly. ENV-7 has permitted exactly that
+since 0.1; what no implementation had was a count window longer than an hour. The reference
+implementation closed it by declaring `actions_per_day` and `actions_per_month`, and its
+adversarial suite moved this case from undefended to defended without a new control type. See
+[EXP-010](../research/experiments/EXP-010).
+
+> **This clause previously said "a count envelope constrains *rate*, not *total*", and that is
+> wrong.** A count envelope constrains the total over its window. A count envelope whose window
+> is sixty seconds constrains the total over sixty seconds, which is a rate — and generalising
+> from the short window to the mechanism is the error. The sentence sent a reader looking for a
+> control ENV-7 already provided, and it cost the reference implementation a full design cycle
+> aimed at building one that existed.
 >
-> [ENV-7](03-envelopes.md) names this limitation in the clause that would otherwise be read as
-> covering it. A count envelope constrains *rate*, not *total*.
+> The distinction that does hold: **no product of a rate limit and a duration is ever compared
+> against anything.** An hourly ceiling of one hundred does not imply a daily ceiling of 2,400.
+> It implies no daily ceiling at all, and that is the gap — not some property of counting.
 >
-> These remain open findings. A specification that quietly omitted them would leave a reader
-> believing envelopes and velocity limits are together sufficient, and they are not.
+> **Why paced evasion stays in this section anyway.** ENV-7 is a **MAY**. An implementation that
+> declares no long-window count envelope is fully conformant and fully exposed, so nothing a
+> conformance result reports tells an adopter whether this is closed for them. Making it a
+> requirement is a profile decision, not a clause edit, and it is not taken here: promoting a MAY
+> to a MUST invalidates every conformance claim made against the current profiles.
+>
+> Structuring needs no such caveat. It is open against every conforming implementation, including
+> one that has done everything 0.1 permits.
 
 ## AEGS-0.1-SEC-7 · Policy as an attack surface
 

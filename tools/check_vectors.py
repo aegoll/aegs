@@ -30,7 +30,7 @@ SCHEMA = VECTORS / "schema.json"
 
 #: A clause heading. The optional lowercase suffix lets a clause be inserted
 #: without renumbering its neighbours -- renumbering breaks every citation.
-CLAUSE = re.compile(r"^##\s+(AEGS-0\.1-[A-Z]+-\d+[a-z]?)\b", re.M)
+CLAUSE = re.compile(r"^##\s+(AEGS-\d+\.\d+-[A-Z]+-\d+[a-z]?)\b", re.M)
 
 
 def declared_clauses() -> set[str]:

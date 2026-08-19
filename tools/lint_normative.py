@@ -33,8 +33,21 @@ SPEC = HERE / "spec"
 VECTORS = HERE / "vectors"
 CASES = HERE / "conformance" / "cases"
 
+#: Every specification version whose clauses may appear. A clause identifier is stamped with
+#: the version that INTRODUCED it and is never restamped (INTRO-4a), so a later document will
+#: contain 0.1 clauses and this set only ever grows. Add a version here when one is released.
+#:
+#: Declared rather than inferred from the pattern on purpose. When this regex hardcoded `0\.1`,
+#: a `AEGS-0.2-*` heading simply did not match, so the linter skipped it in silence: the new
+#: clauses were absent from the count, absent from the coverage check, and a MUST with no vector
+#: would have passed. An unknown version is now an error, not a clause that vanishes.
+VERSIONS = ("0.1",)
+
 #: A clause heading: `## AEGS-0.1-ARITH-4 · A negative amount is refused`
-CLAUSE_HEADING = re.compile(r"^##\s+(AEGS-0\.1-[A-Z]+-\d+[a-z]?)\s*(?:·\s*(.*))?$")
+CLAUSE_HEADING = re.compile(r"^##\s+(AEGS-(\d+\.\d+)-[A-Z]+-\d+[a-z]?)\s*(?:·\s*(.*))?$")
+
+#: Anything shaped like a clause heading, so a version typo is caught instead of ignored.
+CLAUSE_SHAPED = re.compile(r"^##\s+(AEGS-[^\s·]+)")
 
 #: Normative keywords, in capitals. Lower-case "must" is ordinary English and is allowed —
 #: which is exactly why the specification says so in its conventions section.
@@ -64,10 +77,17 @@ def clauses() -> dict[str, dict]:
             heading = CLAUSE_HEADING.match(line)
             if heading:
                 current = heading.group(1)
+                if heading.group(2) not in VERSIONS:
+                    raise SystemExit(
+                        f"{path.name}:{lineno}: clause {current} names spec version "
+                        f"{heading.group(2)!r}, which is not in VERSIONS {VERSIONS}. Add it "
+                        "there deliberately -- an unrecognised version used to be skipped in "
+                        "silence, which hid the clause from every check in this file."
+                    )
                 found[current] = {
                     "file": path.name,
                     "line": lineno,
-                    "title": (heading.group(2) or "").strip(),
+                    "title": (heading.group(3) or "").strip(),
                     "normative": False,
                     "meta": False,
                 }

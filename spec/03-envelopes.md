@@ -131,12 +131,26 @@ already recorded, independent of the amount of the action being decided.
 > value-based envelope set cannot express: forty payments of one cent breach no value limit
 > and are still a pattern worth refusing.
 >
-> **What this clause does not claim.** A count limit constrains rate, not total. Pacing
-> exactly at the limit is unbounded over time, and structuring a large payment into many
-> small ones defeats value envelopes and count envelopes alike. Both remain open findings
-> against the reference implementation, and closing them needs a control that examines the
-> *shape* of a sequence rather than any single limit. Named here rather than left for a
-> reader to discover.
+> **What this clause does and does not cover.** A count envelope constrains the total over its
+> window. An earlier version of this note said it "constrains rate, not total", which is wrong
+> and was expensive: it generalised from the *short* windows implementations happened to use.
+> A sixty-second count envelope constrains the total over sixty seconds, which reads as a rate;
+> a daily one constrains the total over a day.
+>
+> The real gap is narrower. **No product of a rate limit and a duration is ever compared against
+> anything**, so an implementation declaring only `velocity_60s` and `velocity_1h` bounds no
+> total at all — pacing under the hourly ceiling is unbounded. Closing that needs no new control
+> type, only a window longer than the rate window, which this clause already permits.
+>
+> **Structuring is not closed by this clause and cannot be.** Forty payments of one cent breach
+> no value envelope and sit far inside any count limit an ordinary agent could work under.
+> Refusing those needs a control that examines the *shape* of a sequence rather than any single
+> limit. It remains an open finding against the reference implementation, and
+> [SEC-6](12-security-considerations.md) records both cases and which of them 0.1 can defend.
+>
+> Note also that this clause is a **MAY**. An implementation that declares no count envelope at
+> all is conformant, so a conformance result does not tell an adopter that any of this is
+> enforced for them.
 
 **Vectors:** `envelopes/count-*`
 

@@ -56,6 +56,43 @@ means, which is worse than having no specification — the disagreement is now i
 
 A clause with no `MUST` needs no test. It is prose, and prose is allowed to explain.
 
+## AEGS-0.1-INTRO-4a · Clause identifiers are permanent
+
+*Constrains this document, not implementations.*
+
+The general form of a clause identifier is:
+
+```
+AEGS-<version>-<SECTION>-<n>[<suffix>]
+```
+
+`<version>` is the version of this specification in which the clause was **introduced**. It is
+**not** the version of the document that contains it. [INTRO-4](#aegs-01-intro-4--clause-identifiers-and-testability)
+writes the form with a literal `0.1` because every clause published so far was introduced in
+0.1; that is an instance of this rule, not an exception to it.
+
+A clause identifier, once published, **MUST NOT** be renumbered, restamped with a later version,
+or reused for a different requirement.
+
+It follows that a future release of this specification will contain clauses stamped with earlier
+versions, and that the set of `AEGS-0.1-*` identifiers will be the same set then as it is now.
+Reading a `0.1` stamp in a later document as "outdated" will be a misreading: it will mean
+"unchanged since 0.1", which is the stronger statement.
+
+The optional lowercase `<suffix>` exists so that a clause can be inserted between two existing
+ones — `INTRO-4a` sits after `INTRO-4` — without renumbering the clauses after it.
+
+> Written down because it was previously a decision recorded only in a tool. The comment above
+> the clause-matching regex in `tools/check_vectors.py` read *"the optional lowercase suffix lets
+> a clause be inserted without renumbering its neighbours — renumbering breaks every citation"*,
+> and nothing in the specification said so. A rule enforced by a regex and stated nowhere is a
+> rule the next editor breaks in good faith.
+>
+> The cost of getting this wrong is not cosmetic. Clause identifiers are what a conformance
+> report cites, what a test vector's `clause` field names, and what a security advisory points
+> at. Restamping all ninety 0.1 clauses as `0.2` on a future release would invalidate 151
+> vector citations and every conformance result ever published, in exchange for nothing.
+
 ## AEGS-0.1-INTRO-5 · Conformance vocabulary
 
 | Term | Means |
