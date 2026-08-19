@@ -1,0 +1,80 @@
+{
+  "id": "EXP-009",
+  "title": "Red-team baseline, corrected RT-ECON-004",
+  "question": "EXP-008 described RT-ECON-004 as pacing at the rate limit. It was pacing above the limit and stopping before the hourly counter could reach it. What does the attack show when parameterised to pace just under the ceiling instead?",
+  "supersedes": "EXP-008",
+  "supersedesReason": "EXP-008's RT-ECON-004 measurement and the conclusion drawn from it are wrong. 30 actions at 21-second spacing is ten minutes of elapsed time against an hourly counter, so the run ended before velocity_1h could fire. At 120 actions the same spacing IS refused at action 100. The score is unchanged; the gap it describes is different and narrower.",
+  "runs": 1,
+  "runsRationale": "Deterministic suite: no model in the decision path, fresh ephemeral store per attack, fixed clock. Repetition measures nothing.",
+  "seed": null,
+  "costUsd": 0.0,
+  "recordedAt": "2026-08-18T19:20:00+00:00",
+  "python": "3.13.14",
+  "clock": "2026-08-15T12:00:00+00:00",
+  "git": {
+    "repo": "tesoro",
+    "commit": "a9aa84143f91830516159c70757485abd7926aae",
+    "branch": "main",
+    "dirty": true
+  },
+  "policies": {
+    "default": {
+      "hash": "a5a64aeb69dbc5f9206b31022064da26",
+      "rules": 12
+    },
+    "strict": {
+      "hash": "e9f36e640d040194af74ac9a5d1ebfbe",
+      "rules": 10
+    }
+  },
+  "policiesNote": "Unchanged from EXP-007 and EXP-008; all three describe the same rules.",
+  "packages": {
+    "tesoro": "0.1.1",
+    "source": "PyPI, not a checkout"
+  },
+  "counts": {
+    "DEFENDED": 14,
+    "DEFENDED_BY_ACCIDENT": 1,
+    "UNDEFENDED": 3,
+    "ERROR": 0
+  },
+  "undefended": [
+    "RT-ECON-001",
+    "RT-ECON-004",
+    "RT-EVID-002"
+  ],
+  "byAccident": [
+    "RT-ECON-003"
+  ],
+  "surprises": 0,
+  "correctedAttack": {
+    "id": "RT-ECON-004",
+    "was": {
+      "count": 30,
+      "spacing_seconds": 21,
+      "elapsedHours": 0.175,
+      "movedUsd": "0.030000"
+    },
+    "now": {
+      "count": 200,
+      "spacing_seconds": 37,
+      "elapsedHours": 2.056,
+      "movedUsd": "0.200000"
+    },
+    "ceiling": {
+      "velocity_1h": 100,
+      "firesAtAction": 100,
+      "attributedTo": "treasury"
+    },
+    "gap": "no envelope counts actions over a window longer than an hour"
+  },
+  "parameterisationFlaws": {
+    "count": 3,
+    "attacks": [
+      "RT-ECON-002",
+      "RT-ECON-003",
+      "RT-ECON-004"
+    ],
+    "note": "Three of four economic attacks had parameters that could not reach the control they named. All three were arithmetically plausible and all three ran green. Found by reading, not by any check."
+  }
+}
