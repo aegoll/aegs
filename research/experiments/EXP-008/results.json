@@ -1,0 +1,220 @@
+{
+  "suite": "tesoro red-team",
+  "version": "0.1",
+  "attacks": 18,
+  "counts": {
+    "DEFENDED": 14,
+    "DEFENDED_BY_ACCIDENT": 1,
+    "UNDEFENDED": 3,
+    "ERROR": 0
+  },
+  "undefended": [
+    "RT-ECON-001",
+    "RT-ECON-004",
+    "RT-EVID-002"
+  ],
+  "byAccident": [
+    "RT-ECON-003"
+  ],
+  "surprises": [],
+  "results": [
+    {
+      "id": "RT-NUM-001",
+      "title": "Negative amount",
+      "class": "numeric",
+      "outcome": "DEFENDED",
+      "expected": "DEFENDED",
+      "asExpected": true,
+      "shouldBeRefusedBy": "treasury",
+      "refusedBy": "input-validation",
+      "detail": "rejected before any engine saw it: negative amount '-1000.00': an economic action moves value out, and a negative would satisfy every budget"
+    },
+    {
+      "id": "RT-NUM-002",
+      "title": "Zero amount",
+      "class": "numeric",
+      "outcome": "DEFENDED",
+      "expected": "DEFENDED",
+      "asExpected": true,
+      "shouldBeRefusedBy": null,
+      "refusedBy": null,
+      "detail": "zero-value request handled as APPROVE without error"
+    },
+    {
+      "id": "RT-NUM-003",
+      "title": "Sub-atomic precision",
+      "class": "numeric",
+      "outcome": "DEFENDED",
+      "expected": "DEFENDED",
+      "asExpected": true,
+      "shouldBeRefusedBy": null,
+      "refusedBy": null,
+      "detail": "0.0000001 rounds to 0 atomic units -- down, which does not favour the spender"
+    },
+    {
+      "id": "RT-NUM-004",
+      "title": "Very large amount",
+      "class": "numeric",
+      "outcome": "DEFENDED",
+      "expected": "DEFENDED",
+      "asExpected": true,
+      "shouldBeRefusedBy": "treasury",
+      "refusedBy": "input-validation",
+      "detail": "rejected before any engine saw it: amount '999999999999999999999999999999' is too large to represent"
+    },
+    {
+      "id": "RT-NUM-005",
+      "title": "Currency confusion",
+      "class": "numeric",
+      "outcome": "DEFENDED",
+      "expected": "DEFENDED",
+      "asExpected": true,
+      "shouldBeRefusedBy": "intent",
+      "refusedBy": "intent",
+      "detail": ""
+    },
+    {
+      "id": "RT-ECON-001",
+      "title": "Microtransaction structuring",
+      "class": "economic",
+      "outcome": "UNDEFENDED",
+      "expected": "UNDEFENDED",
+      "asExpected": true,
+      "shouldBeRefusedBy": "treasury",
+      "refusedBy": null,
+      "detail": "$0.040000 moved across 40 actions"
+    },
+    {
+      "id": "RT-ECON-002",
+      "title": "Budget fragmentation across vendors",
+      "class": "economic",
+      "outcome": "DEFENDED",
+      "expected": "DEFENDED",
+      "asExpected": true,
+      "shouldBeRefusedBy": "treasury",
+      "refusedBy": "treasury",
+      "detail": "stopped at $50.00 of the $50.00 daily envelope"
+    },
+    {
+      "id": "RT-ECON-003",
+      "title": "Trust farming",
+      "class": "economic",
+      "outcome": "DEFENDED_BY_ACCIDENT",
+      "expected": "DEFENDED_BY_ACCIDENT",
+      "asExpected": true,
+      "shouldBeRefusedBy": "risk",
+      "refusedBy": "policy",
+      "detail": "refused by `policy`, not the `risk` control this attack targets -- shaped differently it would succeed"
+    },
+    {
+      "id": "RT-ECON-004",
+      "title": "Velocity evasion",
+      "class": "economic",
+      "outcome": "UNDEFENDED",
+      "expected": "UNDEFENDED",
+      "asExpected": true,
+      "shouldBeRefusedBy": "treasury",
+      "refusedBy": null,
+      "detail": "$0.030000 moved across 30 actions"
+    },
+    {
+      "id": "RT-EVID-001",
+      "title": "Journal entry tampering",
+      "class": "evidence",
+      "outcome": "DEFENDED",
+      "expected": "DEFENDED",
+      "asExpected": true,
+      "shouldBeRefusedBy": null,
+      "refusedBy": null,
+      "detail": "seq 1: content hash mismatch (stored 773a0e7e604f7aed622edfce52b8bdc3, recomputed d14743454cf39c04bbfaa2aa423a"
+    },
+    {
+      "id": "RT-EVID-002",
+      "title": "Journal truncation",
+      "class": "evidence",
+      "outcome": "UNDEFENDED",
+      "expected": "UNDEFENDED",
+      "asExpected": true,
+      "shouldBeRefusedBy": null,
+      "refusedBy": null,
+      "detail": "the chain still verified"
+    },
+    {
+      "id": "RT-EVID-003",
+      "title": "Middle-entry deletion",
+      "class": "evidence",
+      "outcome": "DEFENDED",
+      "expected": "DEFENDED",
+      "asExpected": true,
+      "shouldBeRefusedBy": null,
+      "refusedBy": null,
+      "detail": "seq 2: out of order, expected 1"
+    },
+    {
+      "id": "RT-EVID-004",
+      "title": "Request id replay",
+      "class": "evidence",
+      "outcome": "DEFENDED",
+      "expected": "DEFENDED",
+      "asExpected": true,
+      "shouldBeRefusedBy": "authorize",
+      "refusedBy": "authorize",
+      "detail": ""
+    },
+    {
+      "id": "RT-AUTH-001",
+      "title": "Delegation escalation",
+      "class": "authority",
+      "outcome": "DEFENDED",
+      "expected": "DEFENDED",
+      "asExpected": true,
+      "shouldBeRefusedBy": "identity",
+      "refusedBy": "identity",
+      "detail": ""
+    },
+    {
+      "id": "RT-AUTH-002",
+      "title": "Revoked identity continues",
+      "class": "authority",
+      "outcome": "DEFENDED",
+      "expected": "DEFENDED",
+      "asExpected": true,
+      "shouldBeRefusedBy": "identity",
+      "refusedBy": "identity",
+      "detail": ""
+    },
+    {
+      "id": "RT-AUTH-003",
+      "title": "Expired intent reuse",
+      "class": "authority",
+      "outcome": "DEFENDED",
+      "expected": "DEFENDED",
+      "asExpected": true,
+      "shouldBeRefusedBy": "intent",
+      "refusedBy": "intent",
+      "detail": ""
+    },
+    {
+      "id": "RT-AUTH-004",
+      "title": "Intent substitution",
+      "class": "authority",
+      "outcome": "DEFENDED",
+      "expected": "DEFENDED",
+      "asExpected": true,
+      "shouldBeRefusedBy": "intent",
+      "refusedBy": null,
+      "detail": "agent-b saw no intent; A's did not transfer"
+    },
+    {
+      "id": "RT-AUTH-005",
+      "title": "Sanctions bar under a permissive rule",
+      "class": "authority",
+      "outcome": "DEFENDED",
+      "expected": "DEFENDED",
+      "asExpected": true,
+      "shouldBeRefusedBy": "sanctions",
+      "refusedBy": "sanctions",
+      "detail": ""
+    }
+  ]
+}

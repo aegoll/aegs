@@ -1,0 +1,50 @@
+{
+  "id": "EXP-008",
+  "title": "Red-team baseline, published tesoro 0.1.1",
+  "question": "What does the 18-attack adversarial suite score against the published package, and is that score a measurement or an artefact of the suite?",
+  "runs": 1,
+  "runsRationale": "The suite is deterministic: no model in the decision path, a fresh ephemeral store per attack, and a fixed clock. Repetition measures nothing. EXP-007 needed ten runs because its quantity was a latency with a 2.4x spread; this one is a set of verdicts.",
+  "seed": null,
+  "costUsd": 0.0,
+  "supersedes": null,
+  "recordedAt": "2026-08-18T18:35:00+00:00",
+  "python": "3.13.14",
+  "clock": "2026-08-15T12:00:00+00:00",
+  "git": {
+    "repo": "tesoro",
+    "commit": "ec5774146fd0ce64a42bffd3b5c4935d708da892",
+    "branch": "main",
+    "dirty": true
+  },
+  "policies": {
+    "default": {
+      "hash": "a5a64aeb69dbc5f9206b31022064da26",
+      "rules": 12
+    },
+    "strict": {
+      "hash": "e9f36e640d040194af74ac9a5d1ebfbe",
+      "rules": 10
+    }
+  },
+  "policiesNote": "Both hashes are identical to EXP-007's, so this score and that latency figure describe the same rules. The red-team result is not confounded by a policy edit.",
+  "packages": {
+    "tesoro": "0.1.1",
+    "source": "PyPI, not a checkout"
+  },
+  "counts": {
+    "DEFENDED": 14,
+    "DEFENDED_BY_ACCIDENT": 1,
+    "UNDEFENDED": 3,
+    "ERROR": 0
+  },
+  "undefended": [
+    "RT-ECON-001",
+    "RT-ECON-004",
+    "RT-EVID-002"
+  ],
+  "byAccident": [
+    "RT-ECON-003"
+  ],
+  "surprises": 0,
+  "attribution": "Which control refused is read from Decision.attributed_control, the package's own projection. The ported runner re-derived it and disagreed (policy where the layer says treasury); two of three apparent surprises in the first run were that artefact."
+}
