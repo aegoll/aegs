@@ -152,6 +152,54 @@ the journal's tail is undetectable.
 
 **Vectors:** `evidence/truncation-*`
 
+## AEGS-0.1-EVID-6a · An external anchor, where one exists, commits to length and head
+
+An implementation **MAY** publish an external anchor for its journal. Where it does:
+
+The anchor **MUST** commit to both the chain's length and its head. Verification against an
+anchor **MUST** distinguish four outcomes — *consistent*, *truncated*, *diverged*, and
+*unknown* — and **MUST NOT** report *unknown* as *consistent*.
+
+An implementation with an anchor **MUST** state that truncation within the unattested tail
+remains undetectable. [EVID-6](#aegs-01-evid-6--a-hash-chain-does-not-detect-truncation-and-an-implementation-must-say-so)
+continues to apply in full: an anchored implementation still **MUST NOT** describe its evidence
+as tamper-proof.
+
+> **Length as well as head, because head alone cannot say what went wrong.** A mismatch between
+> the local head and the published one proves the history changed; it does not distinguish
+> entries having been *removed* from the chain having *diverged*, and those call for different
+> responses. With both values the three cases separate cleanly: shorter than attested and a
+> prefix of it is truncation; long enough but disagreeing is an edit or a fork; equal and
+> agreeing is consistent as far as the last publication.
+>
+> **Four outcomes, because an unreachable anchor is not a passing one.** A sink that cannot be
+> read leaves the anchored claim *unavailable*, which is a third thing — neither a match nor a
+> mismatch. Collapsing it into either is the four-states error of
+> [section 06](06-four-states.md) applied to evidence, and collapsing it into *consistent*
+> specifically means an adversary who can partition the verifier from the sink can also make the
+> journal verify. The chain's own internal result still stands on its own in that case; it is
+> only the anchored claim that is missing.
+>
+> **Why the window has to be disclosed rather than assumed understood.** An anchor is published
+> at some cadence, so everything appended since the last publication is unattested and remains
+> silently truncatable. An anchor therefore does not make truncation detectable — it makes it
+> detectable *beyond a bound the operator chose*. That is a real improvement over nothing and it
+> is not the same claim, and the difference is exactly the sort of thing a reader will assume
+> away unless the implementation states it. A refusal is the entry an adversary most wants to
+> remove and is also rare, which is why publishing on every refusal costs little and narrows the
+> window where it matters most.
+>
+> **What this clause deliberately does not require: that the sink be outside the authority which
+> writes the journal.** It is the property that makes an anchor an anchor — if the same authority
+> that can truncate the journal can rewrite what attests to its length, the attestation is part of
+> the same document — but it is a property of a deployment, not of a computation, and no test
+> vector or conformance case can observe it. Stating it as a MUST would put an unfalsifiable
+> requirement in a specification whose own [INTRO-4](00-introduction.md) says a MUST with no test
+> is a wish. So it is recorded here, as the rule to judge a proposed sink by, and EVID-6 already
+> names the instance everyone reaches for first.
+
+**Vectors:** `evidence/anchor-*`
+
 ## AEGS-0.1-EVID-7 · Verification is total and reports every problem
 
 An implementation **MUST** verify every entry in a chain rather than stopping at the first
