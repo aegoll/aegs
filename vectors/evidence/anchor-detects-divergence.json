@@ -30,7 +30,11 @@
     ],
     "tamper": {
       "kind": "edit",
-      "seq": 1
+      "seq": 1,
+      "payload": {
+        "d": "APPROVE",
+        "tampered": true
+      }
     },
     "anchor": {
       "attestsLength": 3
