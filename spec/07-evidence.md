@@ -189,6 +189,19 @@ as tamper-proof.
 > remove and is also rare, which is why publishing on every refusal costs little and narrows the
 > window where it matters most.
 >
+> **Prior art, named rather than left for a reader to notice.** This is Certificate Transparency's
+> model applied to a spend journal. A CT **Signed Tree Head** commits to a tree size *and* a root
+> hash — the same `(length, head)` pair, for the same reason — and CT's consistency proofs detect
+> omission while its witness networks detect a split view. An implementer who knows CT should read
+> this clause as familiar, because it is.
+>
+> Two things differ, and only the second is a contribution. The **adversary** is not the log
+> operator with many clients watching; it is the *writer of the journal being governed*, and there
+> may be exactly one operator, so peer gossip is unavailable and the anchor must be a party the
+> writer cannot reach. And the **unavailable** case is named as its own outcome with a normative
+> rule against reporting it as consistency, which is what stops a verifier who can be partitioned
+> from its sink from reporting success.
+>
 > **What this clause deliberately does not require: that the sink be outside the authority which
 > writes the journal.** It is the property that makes an anchor an anchor — if the same authority
 > that can truncate the journal can rewrite what attests to its length, the attestation is part of
